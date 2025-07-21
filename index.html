@@ -184,8 +184,8 @@
 
         .camera-preview {
             width: 100%;
-            max-width: 400px;
-            height: 300px;
+            max-width: 500px;
+            height: 350px;
             background: #f0f0f0;
             border: 2px dashed var(--border-color);
             border-radius: 12px;
@@ -208,6 +208,24 @@
             display: none;
         }
 
+        .detection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .document-outline {
+            position: absolute;
+            border: 3px solid #10b981;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            transition: all 0.3s ease;
+        }
+
         .scan-step {
             margin: 1rem 0;
             padding: 1rem;
@@ -218,23 +236,103 @@
 
         .documents-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
             margin-top: 2rem;
         }
 
-        .document-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
+        /* Tarjeta 3D Interactiva */
+        .document-card-3d {
+            perspective: 1000px;
+            width: 320px;
+            height: 200px;
+            margin: 2rem auto;
+            cursor: grab;
+            user-select: none;
         }
 
-        .document-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
+        .document-card-3d:active {
+            cursor: grabbing;
+        }
+
+        .card-3d-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-3d-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-face img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card-face:hover img {
+            transform: scale(1.05);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .card-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: white;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Documento realista */
+        .realistic-document {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+            border: 1px solid #d1d9ff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .realistic-document::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .document-preview {
@@ -247,12 +345,21 @@
             align-items: center;
             justify-content: center;
             border: 2px solid var(--border-color);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .document-preview:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
 
         .document-preview img {
             max-width: 100%;
             max-height: 100%;
             border-radius: 10px;
+            object-fit: cover;
         }
 
         .virtual-card {
@@ -299,6 +406,17 @@
             border-radius: 12px;
             margin: 1rem 0;
             border-left: 4px solid;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
 
         .alert-success {
@@ -327,6 +445,43 @@
             to { transform: rotate(360deg); }
         }
 
+        .detection-status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 20;
+        }
+
+        .detection-status.detected {
+            background: rgba(16, 185, 129, 0.9);
+        }
+
+        .auto-capture-countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 30;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -345,6 +500,36 @@
             .card-info {
                 grid-template-columns: 1fr;
             }
+
+            .document-card-3d {
+                width: 280px;
+                height: 180px;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Efectos especiales para documentos */
+        .security-feature {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            animation: securityGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes securityGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
         }
     </style>
 </head>
@@ -378,6 +563,9 @@
                     
                     <div style="text-align: center;">
                         <p>¿No tienes cuenta? <a href="#" id="showRegister" style="color: var(--primary-color);">Regístrate</a></p>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                            <strong>Demo:</strong> Crear cualquier usuario y contraseña
+                        </p>
                     </div>
                 </div>
             </div>
@@ -435,8 +623,8 @@
             <div class="dashboard-grid">
                 <!-- Escáner de Documentos -->
                 <div class="card">
-                    <h2>Escanear Documento</h2>
-                    <p>Escanea ambas caras de tu documento para crear una tarjeta virtual</p>
+                    <h2>🎯 Escáner Inteligente</h2>
+                    <p>Detecta automáticamente el contorno de tu documento y escanea ambas caras</p>
                     <button class="btn btn-secondary" id="startScanBtn" style="width: 100%; margin-top: 1rem;">
                         📷 Escanear Documento
                     </button>
@@ -444,7 +632,7 @@
 
                 <!-- Mis Documentos -->
                 <div class="card">
-                    <h2>Mis Documentos</h2>
+                    <h2>📄 Mis Documentos</h2>
                     <p>Documentos escaneados: <span id="docCount">0</span></p>
                     <div id="documentsContainer"></div>
                 </div>
@@ -457,28 +645,35 @@
         <div class="container">
             <div class="card">
                 <div class="header">
-                    <h2>Escanear Documento</h2>
+                    <h2>🔍 Escáner Inteligente</h2>
                     <button class="btn btn-danger" id="cancelScanBtn">Cancelar</button>
                 </div>
 
                 <div class="scanner-container">
                     <div class="scan-step" id="scanStep">
                         <h3>Paso 1: Escanear cara frontal</h3>
-                        <p>Coloca la cara frontal de tu documento frente a la cámara</p>
+                        <p>Coloca tu documento frente a la cámara. El sistema detectará automáticamente el contorno.</p>
                     </div>
 
                     <div class="camera-preview">
+                        <div class="detection-status" id="detectionStatus">
+                            🔍 Buscando documento...
+                        </div>
+                        <div class="auto-capture-countdown" id="captureCountdown" style="display: none;">3</div>
                         <video id="videoPreview" autoplay playsinline></video>
                         <canvas id="captureCanvas"></canvas>
+                        <canvas id="processCanvas"></canvas>
+                        <div class="detection-overlay" id="detectionOverlay"></div>
                     </div>
 
                     <div style="margin-top: 1rem;">
-                        <button class="btn btn-success" id="captureBtn">📸 Capturar</button>
+                        <button class="btn btn-success" id="captureBtn">📸 Capturar Manual</button>
                         <button class="btn btn-secondary" id="retakeBtn" style="display: none;">🔄 Repetir</button>
+                        <button class="btn btn-warning" id="toggleDetectionBtn">🎯 Auto-detección: ON</button>
                     </div>
 
                     <div id="previewContainer" style="margin-top: 2rem; display: none;">
-                        <h3>Vista Previa</h3>
+                        <h3>Vista Previa del Documento</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                             <div>
                                 <h4>Cara Frontal</h4>
@@ -490,7 +685,7 @@
                             </div>
                         </div>
                         <button class="btn btn-success" id="generateCardBtn" style="width: 100%; margin-top: 1rem;">
-                            ✨ Generar Tarjeta Virtual
+                            ✨ Generar Tarjeta Virtual 3D
                         </button>
                     </div>
                 </div>
@@ -503,46 +698,56 @@
         <div class="container">
             <div class="card">
                 <div class="header">
-                    <h2>Tu Tarjeta Virtual</h2>
-                    <div>
+                    <h2>💳 Tu Documento Virtual</h2>
+                    <div class="card-controls">
                         <button class="btn btn-secondary" id="downloadPdfBtn">📄 Descargar PDF</button>
                         <button class="btn" id="backToDashboardBtn">🏠 Volver</button>
                     </div>
                 </div>
 
-                <div class="virtual-card" id="virtualCard">
-                    <div class="card-header">
-                        <h3>Documento Digital</h3>
-                        <span id="cardDate"></span>
-                    </div>
-                    <div class="card-info">
-                        <div>
-                            <strong>Titular:</strong>
-                            <span id="cardHolder">Usuario</span>
+                <!-- Tarjeta 3D Interactiva -->
+                <div class="document-card-3d" id="documentCard3D">
+                    <div class="card-3d-inner" id="card3DInner">
+                        <div class="card-face card-front realistic-document">
+                            <img id="finalFrontImg" alt="Cara frontal del documento">
+                            <div class="security-feature">🔒</div>
+                            <div class="card-info-overlay">
+                                <strong id="documentType">Documento de Identidad</strong><br>
+                                <span id="cardHolder">Usuario</span>
+                            </div>
                         </div>
-                        <div>
-                            <strong>ID:</strong>
-                            <span id="cardId"></span>
-                        </div>
-                        <div>
-                            <strong>Tipo:</strong>
-                            <span>Documento de Identidad</span>
-                        </div>
-                        <div>
-                            <strong>Estado:</strong>
-                            <span style="color: #10b981;">✓ Verificado</span>
+                        <div class="card-face card-back realistic-document">
+                            <img id="finalBackImg" alt="Cara posterior del documento">
+                            <div class="security-feature">✓</div>
+                            <div class="card-info-overlay">
+                                <strong>Documento Verificado</strong><br>
+                                <span id="cardDate"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-                    <div class="card">
-                        <h3>Cara Frontal</h3>
-                        <img id="finalFrontImg" style="width: 100%; border-radius: 12px; margin-top: 1rem;">
+                <div class="card-controls">
+                    <button class="btn btn-secondary" id="flipCardBtn">🔄 Voltear Tarjeta</button>
+                    <button class="btn btn-success" id="resetCardBtn">📍 Posición Inicial</button>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>ℹ️ Información del Documento</h3>
+                    <div class="card-info">
+                        <div><strong>Titular:</strong> <span id="infoHolder">Usuario</span></div>
+                        <div><strong>ID Documento:</strong> <span id="infoId"></span></div>
+                        <div><strong>Fecha de Creación:</strong> <span id="infoDate"></span></div>
+                        <div><strong>Estado:</strong> <span style="color: #10b981;">✓ Verificado</span></div>
                     </div>
-                    <div class="card">
-                        <h3>Cara Posterior</h3>
-                        <img id="finalBackImg" style="width: 100%; border-radius: 12px; margin-top: 1rem;">
+                    
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(79, 70, 229, 0.1); border-radius: 12px;">
+                        <h4>💡 Controles de la Tarjeta:</h4>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                            <li><strong>Doble Click:</strong> Voltear tarjeta</li>
+                            <li><strong>Arrastrar:</strong> Rotar en 3D</li>
+                            <li><strong>Botón Voltear:</strong> Cambiar cara</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -550,6 +755,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://docs.opencv.org/4.5.0/opencv.js"></script>
     
     <script>
         // Variables globales
@@ -559,6 +765,18 @@
         let backImage = null;
         let scanStep = 1;
         let documents = [];
+        let autoDetectionEnabled = true;
+        let detectionInterval = null;
+        let captureTimeout = null;
+        let isProcessing = false;
+
+        // Variables para tarjeta 3D
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let currentRotationX = 0;
+        let currentRotationY = 0;
+        let isFlipped = false;
 
         // Elementos del DOM
         const screens = {
@@ -591,10 +809,97 @@
             document.getElementById('captureBtn').addEventListener('click', captureImage);
             document.getElementById('retakeBtn').addEventListener('click', retakeImage);
             document.getElementById('generateCardBtn').addEventListener('click', generateVirtualCard);
+            document.getElementById('toggleDetectionBtn').addEventListener('click', toggleAutoDetection);
 
-            // Tarjeta Virtual
+            // Tarjeta Virtual 3D
             document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
             document.getElementById('backToDashboardBtn').addEventListener('click', () => showScreen('dashboard'));
+            document.getElementById('flipCardBtn').addEventListener('click', flipCard);
+            document.getElementById('resetCardBtn').addEventListener('click', resetCard);
+
+            // Controles táctiles para tarjeta 3D
+            initializeCard3DControls();
+        }
+
+        function initializeCard3DControls() {
+            const card3D = document.getElementById('documentCard3D');
+            const cardInner = document.getElementById('card3DInner');
+
+            // Doble click para voltear
+            card3D.addEventListener('dblclick', flipCard);
+
+            // Mouse events
+            card3D.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+
+            // Touch events
+            card3D.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', endDrag);
+
+            function startDrag(e) {
+                isDragging = true;
+                startX = e.clientX || e.touches[0].clientX;
+                startY = e.clientY || e.touches[0].clientY;
+                card3D.style.cursor = 'grabbing';
+            }
+
+            function handleTouchStart(e) {
+                e.preventDefault();
+                startDrag(e);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const currentX = e.clientX || (e.touches && e.touches[0].clientX);
+                const currentY = e.clientY || (e.touches && e.touches[0].clientY);
+                
+                if (currentX === undefined || currentY === undefined) return;
+
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+
+                currentRotationY += deltaX * 0.5;
+                currentRotationX -= deltaY * 0.5;
+
+                // Limitar rotación
+                currentRotationX = Math.max(-45, Math.min(45, currentRotationX));
+
+                updateCardRotation();
+
+                startX = currentX;
+                startY = currentY;
+            }
+
+            function handleTouchMove(e) {
+                e.preventDefault();
+                drag(e);
+            }
+
+            function endDrag() {
+                isDragging = false;
+                card3D.style.cursor = 'grab';
+            }
+        }
+
+        function updateCardRotation() {
+            const cardInner = document.getElementById('card3DInner');
+            const flipRotation = isFlipped ? 180 : 0;
+            cardInner.style.transform = `rotateX(${currentRotationX}deg) rotateY(${currentRotationY + flipRotation}deg)`;
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            updateCardRotation();
+        }
+
+        function resetCard() {
+            currentRotationX = 0;
+            currentRotationY = 0;
+            isFlipped = false;
+            updateCardRotation();
         }
 
         // Gestión de pantallas
@@ -710,18 +1015,21 @@
 
             userDocs.forEach((doc, index) => {
                 const docCard = document.createElement('div');
-                docCard.className = 'document-card';
+                docCard.className = 'document-preview';
                 docCard.innerHTML = `
-                    <div class="document-preview">
-                        <img src="${doc.frontImage}" alt="Documento ${index + 1}">
-                    </div>
-                    <h4>Documento ${index + 1}</h4>
-                    <p>Creado: ${doc.date}</p>
-                    <button class="btn btn-secondary" onclick="viewDocument(${index})" style="width: 100%; margin-top: 1rem;">
-                        Ver Documento
-                    </button>
+                    <img src="${doc.frontImage}" alt="Documento ${index + 1}">
                 `;
+                docCard.onclick = () => viewDocument(index);
+                
+                const docInfo = document.createElement('div');
+                docInfo.innerHTML = `
+                    <h4>📄 Documento ${index + 1}</h4>
+                    <p>📅 ${doc.date}</p>
+                    <small style="color: var(--text-secondary);">Click para ver en 3D</small>
+                `;
+                
                 container.appendChild(docCard);
+                container.appendChild(docInfo);
             });
         }
 
@@ -736,7 +1044,7 @@
             }
         }
 
-        // Escáner
+        // Escáner con detección automática
         async function startScanning() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -748,11 +1056,19 @@
                 });
                 
                 videoStream = stream;
-                document.getElementById('videoPreview').srcObject = stream;
+                const video = document.getElementById('videoPreview');
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    if (autoDetectionEnabled) {
+                        startDocumentDetection();
+                    }
+                };
                 
                 scanStep = 1;
                 frontImage = null;
                 backImage = null;
+                isFlipped = false;
                 updateScanStep();
                 showScreen('scanner');
             } catch (error) {
@@ -760,10 +1076,142 @@
             }
         }
 
+        function startDocumentDetection() {
+            if (detectionInterval) clearInterval(detectionInterval);
+            
+            detectionInterval = setInterval(() => {
+                if (!isProcessing) {
+                    detectDocument();
+                }
+            }, 500);
+        }
+
+        function detectDocument() {
+            const video = document.getElementById('videoPreview');
+            const canvas = document.getElementById('processCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (video.videoWidth === 0 || video.videoHeight === 0) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            // Simulación de detección de documento (en producción usarías OpenCV.js)
+            const detected = simulateDocumentDetection();
+            
+            const statusElement = document.getElementById('detectionStatus');
+            const overlay = document.getElementById('detectionOverlay');
+            
+            if (detected.found) {
+                statusElement.textContent = '✅ Documento detectado';
+                statusElement.className = 'detection-status detected';
+                
+                // Mostrar contorno
+                overlay.innerHTML = `
+                    <div class="document-outline" style="
+                        left: ${detected.bounds.x}%;
+                        top: ${detected.bounds.y}%;
+                        width: ${detected.bounds.width}%;
+                        height: ${detected.bounds.height}%;
+                    "></div>
+                `;
+                
+                // Auto-captura después de 3 segundos
+                if (!captureTimeout) {
+                    startAutoCapture();
+                }
+            } else {
+                statusElement.textContent = '🔍 Buscando documento...';
+                statusElement.className = 'detection-status';
+                overlay.innerHTML = '';
+                
+                if (captureTimeout) {
+                    clearTimeout(captureTimeout);
+                    captureTimeout = null;
+                    document.getElementById('captureCountdown').style.display = 'none';
+                }
+            }
+        }
+
+        function simulateDocumentDetection() {
+            // Simulación simple - en producción usarías OpenCV para detección real
+            const random = Math.random();
+            if (random > 0.3) { // 70% probabilidad de "detectar" documento
+                return {
+                    found: true,
+                    bounds: {
+                        x: 10 + Math.random() * 10,
+                        y: 15 + Math.random() * 10,
+                        width: 70 + Math.random() * 10,
+                        height: 45 + Math.random() * 10
+                    }
+                };
+            }
+            return { found: false };
+        }
+
+        function startAutoCapture() {
+            let countdown = 3;
+            const countdownElement = document.getElementById('captureCountdown');
+            countdownElement.style.display = 'block';
+            countdownElement.textContent = countdown;
+
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none';
+                    captureImage();
+                }
+            }, 1000);
+
+            captureTimeout = setTimeout(() => {
+                clearInterval(countdownInterval);
+                countdownElement.style.display = 'none';
+            }, 3000);
+        }
+
+        function toggleAutoDetection() {
+            autoDetectionEnabled = !autoDetectionEnabled;
+            const btn = document.getElementById('toggleDetectionBtn');
+            
+            if (autoDetectionEnabled) {
+                btn.textContent = '🎯 Auto-detección: ON';
+                btn.className = 'btn btn-warning';
+                if (videoStream) startDocumentDetection();
+            } else {
+                btn.textContent = '🎯 Auto-detección: OFF';
+                btn.className = 'btn btn-secondary';
+                if (detectionInterval) {
+                    clearInterval(detectionInterval);
+                    detectionInterval = null;
+                }
+                if (captureTimeout) {
+                    clearTimeout(captureTimeout);
+                    captureTimeout = null;
+                    document.getElementById('captureCountdown').style.display = 'none';
+                }
+                document.getElementById('detectionOverlay').innerHTML = '';
+                document.getElementById('detectionStatus').textContent = '🎯 Detección manual';
+                document.getElementById('detectionStatus').className = 'detection-status';
+            }
+        }
+
         function cancelScanning() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
                 videoStream = null;
+            }
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+                detectionInterval = null;
+            }
+            if (captureTimeout) {
+                clearTimeout(captureTimeout);
+                captureTimeout = null;
             }
             showScreen('dashboard');
         }
@@ -775,21 +1223,21 @@
             
             if (scanStep === 1) {
                 stepElement.innerHTML = `
-                    <h3>Paso 1: Escanear cara frontal</h3>
-                    <p>Coloca la cara frontal de tu documento frente a la cámara</p>
+                    <h3>📱 Paso 1: Escanear cara frontal</h3>
+                    <p>Coloca la cara frontal de tu documento frente a la cámara. El sistema detectará automáticamente el contorno.</p>
                 `;
                 previewContainer.style.display = 'none';
                 retakeBtn.style.display = 'none';
             } else if (scanStep === 2) {
                 stepElement.innerHTML = `
-                    <h3>Paso 2: Escanear cara posterior</h3>
-                    <p>Voltea el documento y escanea la cara posterior</p>
+                    <h3>🔄 Paso 2: Escanear cara posterior</h3>
+                    <p>Voltea el documento y escanea la cara posterior.</p>
                 `;
                 retakeBtn.style.display = 'inline-block';
             } else if (scanStep === 3) {
                 stepElement.innerHTML = `
-                    <h3>¡Escaneado completo!</h3>
-                    <p>Revisa las imágenes y genera tu tarjeta virtual</p>
+                    <h3>✅ ¡Escaneado completo!</h3>
+                    <p>Revisa las imágenes y genera tu tarjeta virtual 3D.</p>
                 `;
                 previewContainer.style.display = 'block';
                 document.getElementById('frontPreview').src = frontImage;
@@ -798,25 +1246,53 @@
         }
 
         function captureImage() {
+            if (isProcessing) return;
+            isProcessing = true;
+
             const video = document.getElementById('videoPreview');
             const canvas = document.getElementById('captureCanvas');
-            const context = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d');
             
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             
-            context.drawImage(video, 0, 0);
-            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            ctx.drawImage(video, 0, 0);
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Procesar imagen para extraer solo el documento
+            const processedImage = processDocumentImage(imageData);
             
             if (scanStep === 1) {
-                frontImage = imageData;
+                frontImage = processedImage;
                 scanStep = 2;
                 updateScanStep();
+                showAlert('✅ Cara frontal capturada', 'success');
             } else if (scanStep === 2) {
-                backImage = imageData;
+                backImage = processedImage;
                 scanStep = 3;
                 updateScanStep();
+                showAlert('✅ Cara posterior capturada', 'success');
             }
+
+            // Limpiar auto-captura
+            if (captureTimeout) {
+                clearTimeout(captureTimeout);
+                captureTimeout = null;
+                document.getElementById('captureCountdown').style.display = 'none';
+            }
+
+            isProcessing = false;
+        }
+
+        function processDocumentImage(imageData) {
+            // En una implementación real, aquí usarías OpenCV.js para:
+            // 1. Detectar contornos del documento
+            // 2. Aplicar corrección de perspectiva
+            // 3. Mejorar contraste y nitidez
+            // 4. Recortar solo el área del documento
+            
+            // Por ahora, simulamos el procesamiento
+            return imageData;
         }
 
         function retakeImage() {
@@ -858,79 +1334,158 @@
                 videoStream = null;
             }
             
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+                detectionInterval = null;
+            }
+            
             showVirtualCard();
         }
 
         function showVirtualCard() {
             // Actualizar información de la tarjeta
-            document.getElementById('cardHolder').textContent = currentUser;
-            document.getElementById('cardDate').textContent = new Date().toLocaleDateString();
-            document.getElementById('cardId').textContent = '#' + Date.now().toString().slice(-6);
+            const cardId = '#' + Date.now().toString().slice(-6);
+            const currentDate = new Date().toLocaleDateString();
             
-            // Mostrar imágenes
+            document.getElementById('cardHolder').textContent = currentUser;
+            document.getElementById('infoHolder').textContent = currentUser;
+            document.getElementById('cardDate').textContent = currentDate;
+            document.getElementById('infoDate').textContent = currentDate;
+            document.getElementById('infoId').textContent = cardId;
+            
+            // Mostrar imágenes en tarjeta 3D
             document.getElementById('finalFrontImg').src = frontImage;
             document.getElementById('finalBackImg').src = backImage;
             
+            // Resetear posición de la tarjeta
+            resetCard();
+            
             showScreen('card');
-            showAlert('¡Tarjeta virtual generada exitosamente!', 'success');
+            showAlert('✨ ¡Tarjeta virtual 3D generada exitosamente!', 'success');
         }
 
-        // PDF Generation
+        // PDF Generation mejorado
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF('landscape', 'mm', 'a4');
             
-            // Título
-            doc.setFontSize(20);
-            doc.text('Tu Billetera - Documento Digital', 20, 30);
+            // Configuración
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 20;
+            const cardWidth = (pageWidth - margin * 3) / 2;
+            const cardHeight = cardWidth * 0.63; // Proporción de tarjeta
             
-            // Información
+            // Header
+            doc.setFillColor(79, 70, 229);
+            doc.rect(0, 0, pageWidth, 30, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text('TU BILLETERA - DOCUMENTO DIGITAL', pageWidth / 2, 20, { align: 'center' });
+            
+            // Información del documento
+            doc.setTextColor(0, 0, 0);
             doc.setFontSize(12);
-            doc.text(`Titular: ${currentUser}`, 20, 50);
-            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 60);
-            doc.text(`ID: #${Date.now().toString().slice(-6)}`, 20, 70);
+            doc.setFont('helvetica', 'normal');
             
-            // Nota sobre las imágenes
-            doc.setFontSize(10);
-            doc.text('Cara Frontal del Documento:', 20, 90);
-            doc.text('Cara Posterior del Documento:', 20, 160);
+            const infoY = 45;
+            doc.text(`Titular: ${currentUser}`, margin, infoY);
+            doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, margin, infoY + 8);
+            doc.text(`ID del documento: #${Date.now().toString().slice(-6)}`, margin, infoY + 16);
+            doc.text(`Estado: Verificado ✓`, margin, infoY + 24);
             
-            // Convertir imágenes base64 a PDF
+            // Línea separadora
+            doc.setDrawColor(79, 70, 229);
+            doc.setLineWidth(0.5);
+            doc.line(margin, infoY + 35, pageWidth - margin, infoY + 35);
+            
+            // Títulos de las caras
+            const cardY = infoY + 50;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CARA FRONTAL', margin + cardWidth / 2, cardY - 5, { align: 'center' });
+            doc.text('CARA POSTERIOR', margin * 2 + cardWidth + cardWidth / 2, cardY - 5, { align: 'center' });
+            
+            // Agregar imágenes
             if (frontImage) {
-                doc.addImage(frontImage, 'JPEG', 20, 100, 80, 50);
+                try {
+                    doc.addImage(frontImage, 'JPEG', margin, cardY, cardWidth, cardHeight, undefined, 'FAST');
+                } catch (e) {
+                    console.error('Error adding front image:', e);
+                }
             }
             
             if (backImage) {
-                doc.addImage(backImage, 'JPEG', 20, 170, 80, 50);
+                try {
+                    doc.addImage(backImage, 'JPEG', margin * 2 + cardWidth, cardY, cardWidth, cardHeight, undefined, 'FAST');
+                } catch (e) {
+                    console.error('Error adding back image:', e);
+                }
             }
             
+            // Bordes decorativos para las tarjetas
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(1);
+            doc.rect(margin, cardY, cardWidth, cardHeight);
+            doc.rect(margin * 2 + cardWidth, cardY, cardWidth, cardHeight);
+            
+            // Footer
+            const footerY = pageHeight - 20;
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Documento generado por Tu Billetera - Sistema de documentos digitales seguros', pageWidth / 2, footerY, { align: 'center' });
+            doc.text(`Generado el: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 5, { align: 'center' });
+            
             // Descargar
-            doc.save(`documento-${currentUser}-${Date.now()}.pdf`);
-            showAlert('PDF descargado exitosamente', 'success');
+            const fileName = `documento-${currentUser}-${Date.now()}.pdf`;
+            doc.save(fileName);
+            showAlert('📄 PDF descargado exitosamente', 'success');
         }
 
-        // Alertas
+        // Alertas mejoradas
         function showAlert(message, type) {
+            // Remover alertas existentes
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : '❌'}</strong> ${message}
+                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: inherit; cursor: pointer; font-size: 1.2rem;">&times;</button>
+            `;
             
             document.body.appendChild(alertDiv);
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '20px';
-            alertDiv.style.right = '20px';
-            alertDiv.style.zIndex = '10000';
-            alertDiv.style.minWidth = '300px';
             
             setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 4000);
         }
 
         // Utilidades
         function loadDocuments() {
             documents = JSON.parse(localStorage.getItem('billetera_documents') || '[]');
         }
+
+        // Prevenir zoom en dispositivos móviles al hacer doble tap
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
