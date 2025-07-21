@@ -208,23 +208,43 @@
             display: none;
         }
 
-        .detection-overlay {
+        .crop-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
             z-index: 10;
+            cursor: crosshair;
         }
 
-        .document-outline {
+        .crop-area {
             position: absolute;
             border: 3px solid #10b981;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            transition: all 0.3s ease;
+            background: rgba(16, 185, 129, 0.1);
+            cursor: move;
         }
+
+        .crop-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: grab;
+        }
+
+        .crop-handle:active {
+            cursor: grabbing;
+        }
+
+        .crop-handle.nw { top: -10px; left: -10px; cursor: nw-resize; }
+        .crop-handle.ne { top: -10px; right: -10px; cursor: ne-resize; }
+        .crop-handle.sw { bottom: -10px; left: -10px; cursor: sw-resize; }
+        .crop-handle.se { bottom: -10px; right: -10px; cursor: se-resize; }
 
         .scan-step {
             margin: 1rem 0;
@@ -1168,9 +1188,43 @@
                 animation: documentPulse 2s ease-in-out infinite;
             }
             
-            @keyframes documentPulse {
-                0%, 100% { opacity: 0.8; }
-                50% { opacity: 1; }
+            @media (max-width: 568px) {
+                #cropContainer {
+                    margin-top: 1rem;
+                }
+                
+                #cropContainer h3 {
+                    font-size: 1.1rem;
+                }
+                
+                #cropContainer p {
+                    font-size: 0.9rem;
+                }
+                
+                .crop-area {
+                    border-width: 2px;
+                }
+                
+                .crop-handle {
+                    width: 30px;
+                    height: 30px;
+                    border-width: 3px;
+                }
+                
+                .crop-handle.nw { top: -15px; left: -15px; }
+                .crop-handle.ne { top: -15px; right: -15px; }
+                .crop-handle.sw { bottom: -15px; left: -15px; }
+                .crop-handle.se { bottom: -15px; right: -15px; }
+                
+                #cropContainer > div:last-child {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+                
+                #cropContainer > div:last-child .btn {
+                    width: 100%;
+                }
             }
             
             #previewContainer {
@@ -1465,8 +1519,8 @@
             <div class="dashboard-grid">
                 <!-- Escáner de Documentos -->
                 <div class="card">
-                    <h2>🎯 Escáner Inteligente</h2>
-                    <p>Detecta automáticamente el contorno de tu documento y escanea ambas caras</p>
+                    <h2>📸 Escáner Manual</h2>
+                    <p>Toma fotos de tu documento y recorta manualmente el área exacta que necesites guardar</p>
                     <button class="btn btn-secondary" id="startScanBtn" style="width: 100%; margin-top: 1rem;">
                         📷 Escanear Documento
                     </button>
@@ -1487,31 +1541,49 @@
         <div class="container">
             <div class="card">
                 <div class="header">
-                    <h2>🔍 Escáner Inteligente</h2>
+                    <h2>📸 Escáner Manual</h2>
                     <button class="btn btn-danger" id="cancelScanBtn">Cancelar</button>
                 </div>
 
                 <div class="scanner-container">
                     <div class="scan-step" id="scanStep">
-                        <h3>Paso 1: Escanear cara frontal</h3>
-                        <p>Coloca tu documento frente a la cámara. El sistema detectará automáticamente el contorno.</p>
+                        <h3>Paso 1: Capturar cara frontal</h3>
+                        <p>Toma una foto de la cara frontal de tu documento. Luego podrás recortar la parte que necesites.</p>
                     </div>
 
                     <div class="camera-preview">
-                        <div class="detection-status" id="detectionStatus">
-                            🔍 Buscando documento...
-                        </div>
-                        <div class="auto-capture-countdown" id="captureCountdown" style="display: none;">3</div>
                         <video id="videoPreview" autoplay playsinline></video>
                         <canvas id="captureCanvas"></canvas>
                         <canvas id="processCanvas"></canvas>
-                        <div class="detection-overlay" id="detectionOverlay"></div>
                     </div>
 
                     <div style="margin-top: 1rem;">
-                        <button class="btn btn-success" id="captureBtn">📸 Capturar Manual</button>
+                        <button class="btn btn-success" id="captureBtn">📸 Tomar Foto</button>
                         <button class="btn btn-secondary" id="retakeBtn" style="display: none;">🔄 Repetir</button>
-                        <button class="btn btn-warning" id="toggleDetectionBtn">🎯 Auto-detección: ON</button>
+                    </div>
+
+                    <!-- Pantalla de Recorte -->
+                    <div id="cropContainer" style="display: none; margin-top: 2rem;">
+                        <h3>✂️ Selecciona el área del documento</h3>
+                        <p>Arrastra para seleccionar el área del documento que quieres guardar</p>
+                        
+                        <div style="position: relative; margin: 1rem auto; max-width: 500px;">
+                            <img id="cropImage" style="width: 100%; border-radius: 12px; display: block;">
+                            <div class="crop-overlay" id="cropOverlay">
+                                <div class="crop-area" id="cropArea">
+                                    <div class="crop-handle nw"></div>
+                                    <div class="crop-handle ne"></div>
+                                    <div class="crop-handle sw"></div>
+                                    <div class="crop-handle se"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-success" id="confirmCropBtn">✅ Confirmar Recorte</button>
+                            <button class="btn btn-warning" id="resetCropBtn">🔄 Resetear Selección</button>
+                            <button class="btn btn-secondary" id="skipCropBtn">⏭️ Usar Foto Completa</button>
+                        </div>
                     </div>
 
                     <div id="previewContainer" style="margin-top: 2rem; display: none;">
@@ -1597,7 +1669,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://docs.opencv.org/4.5.0/opencv.js"></script>
     
     <script>
         // Variables globales
@@ -1607,10 +1678,8 @@
         let backImage = null;
         let scanStep = 1;
         let documents = [];
-        let autoDetectionEnabled = true;
-        let detectionInterval = null;
-        let captureTimeout = null;
         let isProcessing = false;
+        let currentCapturedImage = null;
 
         // Variables para tarjeta 3D
         let isDragging = false;
@@ -1619,6 +1688,14 @@
         let currentRotationX = 0;
         let currentRotationY = 0;
         let isFlipped = false;
+
+        // Variables para recorte
+        let cropArea = { x: 0, y: 0, width: 0, height: 0 };
+        let isDraggingCrop = false;
+        let isResizing = false;
+        let resizeHandle = null;
+        let cropStartX = 0;
+        let cropStartY = 0;
 
         // Elementos del DOM
         const screens = {
@@ -1697,17 +1774,10 @@
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // Ajustar timeouts para móviles
-                window.detectionInterval = 800; // Más lento en móviles
-                window.autoCaptureDelay = 4000; // Más tiempo para posicionar
-                
                 // Hacer botones más grandes en móviles pequeños
                 if (window.innerWidth <= 480) {
                     document.documentElement.style.setProperty('--btn-mobile-height', '48px');
                 }
-            } else {
-                window.detectionInterval = 500;
-                window.autoCaptureDelay = 3000;
             }
         }
 
@@ -1829,7 +1899,11 @@
             document.getElementById('captureBtn').addEventListener('click', captureImage);
             document.getElementById('retakeBtn').addEventListener('click', retakeImage);
             document.getElementById('generateCardBtn').addEventListener('click', generateVirtualCard);
-            document.getElementById('toggleDetectionBtn').addEventListener('click', toggleAutoDetection);
+
+            // Recorte
+            document.getElementById('confirmCropBtn').addEventListener('click', confirmCrop);
+            document.getElementById('resetCropBtn').addEventListener('click', resetCrop);
+            document.getElementById('skipCropBtn').addEventListener('click', skipCrop);
 
             // Tarjeta Virtual 3D
             document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
@@ -1839,6 +1913,9 @@
 
             // Controles táctiles para tarjeta 3D
             initializeCard3DControls();
+            
+            // Controles de recorte
+            initializeCropControls();
         }
 
         function initializeCard3DControls() {
@@ -1902,6 +1979,196 @@
                 isDragging = false;
                 card3D.style.cursor = 'grab';
             }
+        }
+
+        function initializeCropControls() {
+            const cropOverlay = document.getElementById('cropOverlay');
+            const cropAreaEl = document.getElementById('cropArea');
+            
+            // Event listeners para arrastrar el área de recorte
+            cropAreaEl.addEventListener('mousedown', startDragCrop);
+            cropAreaEl.addEventListener('touchstart', startDragCrop, { passive: false });
+            
+            // Event listeners para redimensionar
+            const handles = cropAreaEl.querySelectorAll('.crop-handle');
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', (e) => startResize(e, handle.className.split(' ')[1]));
+                handle.addEventListener('touchstart', (e) => startResize(e, handle.className.split(' ')[1]), { passive: false });
+            });
+            
+            // Event listeners globales
+            document.addEventListener('mousemove', handleCropMove);
+            document.addEventListener('touchmove', handleCropMove, { passive: false });
+            document.addEventListener('mouseup', endCropAction);
+            document.addEventListener('touchend', endCropAction);
+            
+            // Crear área inicial cuando se muestra la imagen
+            cropOverlay.addEventListener('click', createInitialCropArea);
+        }
+
+        function createInitialCropArea() {
+            const img = document.getElementById('cropImage');
+            const rect = img.getBoundingClientRect();
+            
+            // Crear área inicial de 80% del centro de la imagen
+            const margin = 0.1;
+            cropArea = {
+                x: rect.width * margin,
+                y: rect.height * margin,
+                width: rect.width * (1 - margin * 2),
+                height: rect.height * (1 - margin * 2)
+            };
+            
+            updateCropAreaDisplay();
+        }
+
+        function startDragCrop(e) {
+            e.preventDefault();
+            isDraggingCrop = true;
+            const rect = document.getElementById('cropImage').getBoundingClientRect();
+            cropStartX = (e.clientX || e.touches[0].clientX) - rect.left - cropArea.x;
+            cropStartY = (e.clientY || e.touches[0].clientY) - rect.top - cropArea.y;
+        }
+
+        function startResize(e, handle) {
+            e.preventDefault();
+            e.stopPropagation();
+            isResizing = true;
+            resizeHandle = handle;
+            const rect = document.getElementById('cropImage').getBoundingClientRect();
+            cropStartX = (e.clientX || e.touches[0].clientX) - rect.left;
+            cropStartY = (e.clientY || e.touches[0].clientY) - rect.top;
+        }
+
+        function handleCropMove(e) {
+            if (!isDraggingCrop && !isResizing) return;
+            
+            e.preventDefault();
+            const rect = document.getElementById('cropImage').getBoundingClientRect();
+            const currentX = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const currentY = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+            
+            if (isDraggingCrop) {
+                // Mover área de recorte
+                cropArea.x = Math.max(0, Math.min(currentX - cropStartX, rect.width - cropArea.width));
+                cropArea.y = Math.max(0, Math.min(currentY - cropStartY, rect.height - cropArea.height));
+            } else if (isResizing) {
+                // Redimensionar área de recorte
+                const deltaX = currentX - cropStartX;
+                const deltaY = currentY - cropStartY;
+                
+                switch (resizeHandle) {
+                    case 'nw':
+                        cropArea.width = Math.max(50, cropArea.width - deltaX);
+                        cropArea.height = Math.max(50, cropArea.height - deltaY);
+                        cropArea.x = Math.max(0, cropArea.x + deltaX);
+                        cropArea.y = Math.max(0, cropArea.y + deltaY);
+                        break;
+                    case 'ne':
+                        cropArea.width = Math.max(50, deltaX - cropArea.x);
+                        cropArea.height = Math.max(50, cropArea.height - deltaY);
+                        cropArea.y = Math.max(0, cropArea.y + deltaY);
+                        break;
+                    case 'sw':
+                        cropArea.width = Math.max(50, cropArea.width - deltaX);
+                        cropArea.height = Math.max(50, deltaY - cropArea.y);
+                        cropArea.x = Math.max(0, cropArea.x + deltaX);
+                        break;
+                    case 'se':
+                        cropArea.width = Math.max(50, deltaX - cropArea.x);
+                        cropArea.height = Math.max(50, deltaY - cropArea.y);
+                        break;
+                }
+                
+                // Limitar a los bordes de la imagen
+                cropArea.width = Math.min(cropArea.width, rect.width - cropArea.x);
+                cropArea.height = Math.min(cropArea.height, rect.height - cropArea.y);
+                
+                cropStartX = currentX;
+                cropStartY = currentY;
+            }
+            
+            updateCropAreaDisplay();
+        }
+
+        function endCropAction() {
+            isDraggingCrop = false;
+            isResizing = false;
+            resizeHandle = null;
+        }
+
+        function updateCropAreaDisplay() {
+            const cropAreaEl = document.getElementById('cropArea');
+            cropAreaEl.style.left = cropArea.x + 'px';
+            cropAreaEl.style.top = cropArea.y + 'px';
+            cropAreaEl.style.width = cropArea.width + 'px';
+            cropAreaEl.style.height = cropArea.height + 'px';
+        }
+
+        function resetCrop() {
+            createInitialCropArea();
+        }
+
+        function skipCrop() {
+            // Usar imagen completa
+            if (scanStep === 1) {
+                frontImage = currentCapturedImage;
+                scanStep = 2;
+                updateScanStep();
+                showAlert('✅ Cara frontal guardada (imagen completa)', 'success');
+            } else if (scanStep === 2) {
+                backImage = currentCapturedImage;
+                scanStep = 3;
+                updateScanStep();
+                showAlert('✅ Cara posterior guardada (imagen completa)', 'success');
+            }
+            
+            document.getElementById('cropContainer').style.display = 'none';
+        }
+
+        function confirmCrop() {
+            if (!currentCapturedImage) return;
+            
+            const img = document.getElementById('cropImage');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calcular proporciones reales de la imagen
+            const imgElement = new Image();
+            imgElement.onload = () => {
+                const scaleX = imgElement.naturalWidth / img.clientWidth;
+                const scaleY = imgElement.naturalHeight / img.clientHeight;
+                
+                // Configurar canvas con el tamaño del recorte
+                canvas.width = cropArea.width * scaleX;
+                canvas.height = cropArea.height * scaleY;
+                
+                // Dibujar la parte recortada
+                ctx.drawImage(
+                    imgElement,
+                    cropArea.x * scaleX, cropArea.y * scaleY,
+                    cropArea.width * scaleX, cropArea.height * scaleY,
+                    0, 0,
+                    canvas.width, canvas.height
+                );
+                
+                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
+                
+                if (scanStep === 1) {
+                    frontImage = croppedImage;
+                    scanStep = 2;
+                    updateScanStep();
+                    showAlert('✅ Cara frontal recortada y guardada', 'success');
+                } else if (scanStep === 2) {
+                    backImage = croppedImage;
+                    scanStep = 3;
+                    updateScanStep();
+                    showAlert('✅ Cara posterior recortada y guardada', 'success');
+                }
+                
+                document.getElementById('cropContainer').style.display = 'none';
+            };
+            imgElement.src = currentCapturedImage;
         }
 
         function updateCardRotation() {
@@ -2064,7 +2331,7 @@
             }
         }
 
-        // Escáner con detección automática
+        // Escáner simplificado
         async function startScanning() {
             try {
                 // Usar configuración optimizada según dispositivo
@@ -2084,9 +2351,6 @@
                 
                 video.onloadedmetadata = () => {
                     adjustCameraPreview();
-                    if (autoDetectionEnabled) {
-                        startDocumentDetection();
-                    }
                 };
                 
                 scanStep = 1;
@@ -2096,148 +2360,19 @@
                 updateScanStep();
                 showScreen('scanner');
                 
-                // Mensaje optimizado para móviles
+                // Mensaje para móviles
                 const isMobile = window.innerWidth <= 768;
                 if (isMobile) {
-                    showAlert('📱 Mantén el dispositivo estable y bien iluminado', 'success');
+                    showAlert('📱 Toma la foto y luego recorta el documento', 'success');
                 }
                 
             } catch (error) {
                 showAlert('Error al acceder a la cámara: ' + error.message, 'error');
-                // Sugerir alternativas en móviles
                 if (window.innerWidth <= 768) {
                     setTimeout(() => {
-                        showAlert('💡 Intenta desde el navegador principal del dispositivo', 'success');
+                        showAlert('💡 Asegúrate de dar permisos de cámara', 'success');
                     }, 3000);
                 }
-            }
-        }
-
-        function startDocumentDetection() {
-            if (detectionInterval) clearInterval(detectionInterval);
-            
-            // Usar intervalo optimizado según dispositivo
-            const interval = window.detectionInterval || 500;
-            
-            detectionInterval = setInterval(() => {
-                if (!isProcessing) {
-                    detectDocument();
-                }
-            }, interval);
-        }
-
-        function detectDocument() {
-            const video = document.getElementById('videoPreview');
-            const canvas = document.getElementById('processCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (video.videoWidth === 0 || video.videoHeight === 0) return;
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-
-            // Simulación de detección de documento (en producción usarías OpenCV.js)
-            const detected = simulateDocumentDetection();
-            
-            const statusElement = document.getElementById('detectionStatus');
-            const overlay = document.getElementById('detectionOverlay');
-            
-            if (detected.found) {
-                statusElement.textContent = '✅ Documento detectado';
-                statusElement.className = 'detection-status detected';
-                
-                // Mostrar contorno
-                overlay.innerHTML = `
-                    <div class="document-outline" style="
-                        left: ${detected.bounds.x}%;
-                        top: ${detected.bounds.y}%;
-                        width: ${detected.bounds.width}%;
-                        height: ${detected.bounds.height}%;
-                    "></div>
-                `;
-                
-                // Auto-captura después de 3 segundos
-                if (!captureTimeout) {
-                    startAutoCapture();
-                }
-            } else {
-                statusElement.textContent = '🔍 Buscando documento...';
-                statusElement.className = 'detection-status';
-                overlay.innerHTML = '';
-                
-                if (captureTimeout) {
-                    clearTimeout(captureTimeout);
-                    captureTimeout = null;
-                    document.getElementById('captureCountdown').style.display = 'none';
-                }
-            }
-        }
-
-        function simulateDocumentDetection() {
-            // Simulación simple - en producción usarías OpenCV para detección real
-            const random = Math.random();
-            if (random > 0.3) { // 70% probabilidad de "detectar" documento
-                return {
-                    found: true,
-                    bounds: {
-                        x: 10 + Math.random() * 10,
-                        y: 15 + Math.random() * 10,
-                        width: 70 + Math.random() * 10,
-                        height: 45 + Math.random() * 10
-                    }
-                };
-            }
-            return { found: false };
-        }
-
-        function startAutoCapture() {
-            const delay = window.autoCaptureDelay || 3000;
-            let countdown = Math.ceil(delay / 1000);
-            const countdownElement = document.getElementById('captureCountdown');
-            countdownElement.style.display = 'block';
-            countdownElement.textContent = countdown;
-
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownElement.style.display = 'none';
-                    captureImage();
-                }
-            }, 1000);
-
-            captureTimeout = setTimeout(() => {
-                clearInterval(countdownInterval);
-                countdownElement.style.display = 'none';
-            }, delay);
-        }
-
-        function toggleAutoDetection() {
-            autoDetectionEnabled = !autoDetectionEnabled;
-            const btn = document.getElementById('toggleDetectionBtn');
-            
-            if (autoDetectionEnabled) {
-                btn.textContent = '🎯 Auto-detección: ON';
-                btn.className = 'btn btn-warning';
-                if (videoStream) startDocumentDetection();
-            } else {
-                btn.textContent = '🎯 Auto-detección: OFF';
-                btn.className = 'btn btn-secondary';
-                if (detectionInterval) {
-                    clearInterval(detectionInterval);
-                    detectionInterval = null;
-                }
-                if (captureTimeout) {
-                    clearTimeout(captureTimeout);
-                    captureTimeout = null;
-                    document.getElementById('captureCountdown').style.display = 'none';
-                }
-                document.getElementById('detectionOverlay').innerHTML = '';
-                document.getElementById('detectionStatus').textContent = '🎯 Detección manual';
-                document.getElementById('detectionStatus').className = 'detection-status';
             }
         }
 
@@ -2246,14 +2381,6 @@
                 videoStream.getTracks().forEach(track => track.stop());
                 videoStream = null;
             }
-            if (detectionInterval) {
-                clearInterval(detectionInterval);
-                detectionInterval = null;
-            }
-            if (captureTimeout) {
-                clearTimeout(captureTimeout);
-                captureTimeout = null;
-            }
             showScreen('dashboard');
         }
 
@@ -2261,24 +2388,28 @@
             const stepElement = document.getElementById('scanStep');
             const previewContainer = document.getElementById('previewContainer');
             const retakeBtn = document.getElementById('retakeBtn');
+            const cropContainer = document.getElementById('cropContainer');
+            
+            // Ocultar contenedor de recorte
+            cropContainer.style.display = 'none';
             
             if (scanStep === 1) {
                 stepElement.innerHTML = `
-                    <h3>📱 Paso 1: Escanear cara frontal</h3>
-                    <p>Coloca la cara frontal de tu documento frente a la cámara. El sistema detectará automáticamente el contorno.</p>
+                    <h3>📱 Paso 1: Capturar cara frontal</h3>
+                    <p>Toma una foto de la cara frontal de tu documento. Luego podrás recortar la parte exacta que necesites.</p>
                 `;
                 previewContainer.style.display = 'none';
                 retakeBtn.style.display = 'none';
             } else if (scanStep === 2) {
                 stepElement.innerHTML = `
-                    <h3>🔄 Paso 2: Escanear cara posterior</h3>
-                    <p>Voltea el documento y escanea la cara posterior.</p>
+                    <h3>🔄 Paso 2: Capturar cara posterior</h3>
+                    <p>Voltea el documento y toma una foto de la cara posterior.</p>
                 `;
                 retakeBtn.style.display = 'inline-block';
             } else if (scanStep === 3) {
                 stepElement.innerHTML = `
                     <h3>✅ ¡Escaneado completo!</h3>
-                    <p>Revisa las imágenes y genera tu tarjeta virtual 3D.</p>
+                    <p>Ambas caras han sido capturadas y recortadas. Genera tu tarjeta virtual 3D.</p>
                 `;
                 previewContainer.style.display = 'block';
                 document.getElementById('frontPreview').src = frontImage;
@@ -2298,42 +2429,21 @@
             canvas.height = video.videoHeight;
             
             ctx.drawImage(video, 0, 0);
-            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+            currentCapturedImage = canvas.toDataURL('image/jpeg', 0.9);
             
-            // Procesar imagen para extraer solo el documento
-            const processedImage = processDocumentImage(imageData);
+            // Mostrar la imagen para recortar
+            document.getElementById('cropImage').src = currentCapturedImage;
+            document.getElementById('cropContainer').style.display = 'block';
             
-            if (scanStep === 1) {
-                frontImage = processedImage;
-                scanStep = 2;
-                updateScanStep();
-                showAlert('✅ Cara frontal capturada', 'success');
-            } else if (scanStep === 2) {
-                backImage = processedImage;
-                scanStep = 3;
-                updateScanStep();
-                showAlert('✅ Cara posterior capturada', 'success');
-            }
-
-            // Limpiar auto-captura
-            if (captureTimeout) {
-                clearTimeout(captureTimeout);
-                captureTimeout = null;
-                document.getElementById('captureCountdown').style.display = 'none';
-            }
+            // Crear área inicial de recorte
+            setTimeout(() => {
+                createInitialCropArea();
+            }, 100);
+            
+            const stepText = scanStep === 1 ? 'frontal' : 'posterior';
+            showAlert(`📸 Foto ${stepText} capturada. Selecciona el área del documento.`, 'success');
 
             isProcessing = false;
-        }
-
-        function processDocumentImage(imageData) {
-            // En una implementación real, aquí usarías OpenCV.js para:
-            // 1. Detectar contornos del documento
-            // 2. Aplicar corrección de perspectiva
-            // 3. Mejorar contraste y nitidez
-            // 4. Recortar solo el área del documento
-            
-            // Por ahora, simulamos el procesamiento
-            return imageData;
         }
 
         function retakeImage() {
@@ -2344,6 +2454,7 @@
                 backImage = null;
                 scanStep = 2;
             }
+            document.getElementById('cropContainer').style.display = 'none';
             updateScanStep();
         }
 
@@ -2373,11 +2484,6 @@
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
                 videoStream = null;
-            }
-            
-            if (detectionInterval) {
-                clearInterval(detectionInterval);
-                detectionInterval = null;
             }
             
             showVirtualCard();
