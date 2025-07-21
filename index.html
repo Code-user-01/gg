@@ -1,139 +1,935 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Aterrizaje con PopAds</title>
+    <title>Tu Billetera - Documentos Virtuales</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color), #0891b2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error-color), #dc2626);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 5vh auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .nav-bar {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            background-color: #1a1a1a;
-            color: #fff;
-            font-family: 'Helvetica', sans-serif;
+            color: white;
+            font-weight: 600;
         }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
+
+        .scanner-container {
             text-align: center;
-            position: relative;
         }
-        .content {
+
+        .camera-preview {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: #f0f0f0;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
             overflow: hidden;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5);
         }
-        img, video {
-            width: 100%;
-            border-radius: 10px;
-            filter: blur(25px);
-            transition: filter 0.5s;
-        }
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
+
+        .camera-preview video {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(255, 20, 147, 0.8);
+            object-fit: cover;
             border-radius: 10px;
         }
-        .overlay button {
-            padding: 12px 24px;
-            font-size: 18px;
-            color: #fff;
-            background-color: #ff69b4;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
+
+        .camera-preview canvas {
+            display: none;
         }
-        .overlay button:hover {
-            background-color: #ff1493;
-            transform: scale(1.1);
+
+        .scan-step {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
         }
-        .cta-text {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #ff69b4;
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .document-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .document-preview {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+        }
+
+        .document-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+        }
+
+        .virtual-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .virtual-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error-color);
+            color: var(--error-color);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .nav-bar {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-info {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="cta-text">Ven... Libérame uno por uno 💋</h1>
-        <p>Cada vez que desbloqueas una foto, te acercas más a mí... ¿Te atreves a seguir? 🔥</p>
-
-        <!-- Contenido Bloqueado con Efecto Borroso -->
-        <div class="content">
-            <img id="foto1" src="images/photo1.jfif" alt="Foto 1">
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('foto1')">Sí, quiero más...</button>
-            </div>
-        </div>
-        <div class="content">
-            <img id="foto2" src="images/photo2.jfif" alt="Foto 2">
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('foto2')">Muéstrame más...</button>
-            </div>
-        </div>
-        <div class="content">
-            <img id="foto3" src="images/photo3.jfif" alt="Foto 3">
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('foto3')">Quiero seguir...</button>
-            </div>
-        </div>
-        <div class="content">
-            <img id="foto4" src="images/photo4.jfif" alt="Foto 4">
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('foto4')">No puedo resistir...</button>
-            </div>
-        </div>
-        <div class="content">
-            <img id="foto5" src="images/photo5.jfif" alt="Foto 5">
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('foto5')">Dame más...</button>
-            </div>
-        </div>
-        <div class="content">
-            <video id="video" controls>
-                <source src="images/video.mp4" type="video/mp4">
-                Tu navegador no soporta el video.
-            </video>
-            <div class="overlay">
-                <button onclick="mostrarAnuncio('video')">Veamos el video...</button>
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="screen active">
+        <div class="container">
+            <div class="auth-container">
+                <div class="card">
+                    <div class="header">
+                        <h1>Tu Billetera</h1>
+                        <p>Tus documentos digitales seguros</p>
+                    </div>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Usuario</label>
+                            <input type="text" id="username" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Contraseña</label>
+                            <input type="password" id="password" class="form-control" required>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">
+                            <span id="loginText">Iniciar Sesión</span>
+                            <span id="loginLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                    
+                    <div style="text-align: center;">
+                        <p>¿No tienes cuenta? <a href="#" id="showRegister" style="color: var(--primary-color);">Regístrate</a></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Script para PopAds -->
-    <script type="text/javascript">
-        // Función simulada para mostrar un anuncio antes de revelar el contenido
-        function mostrarAnuncio(contentId) {
-            alert('Ve este anuncio para desbloquear mi siguiente sorpresa...');
-            // Simula la redirección a una página de anuncios
-            window.open('https://www.popads.net/', '_blank');
+    <!-- Pantalla de Registro -->
+    <div id="registerScreen" class="screen">
+        <div class="container">
+            <div class="auth-container">
+                <div class="card">
+                    <div class="header">
+                        <h1>Registro</h1>
+                        <p>Crea tu cuenta segura</p>
+                    </div>
+                    
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="newUsername">Usuario</label>
+                            <input type="text" id="newUsername" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">Contraseña</label>
+                            <input type="password" id="newPassword" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Contraseña</label>
+                            <input type="password" id="confirmPassword" class="form-control" required>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">Registrarse</button>
+                    </form>
+                    
+                    <div style="text-align: center;">
+                        <p>¿Ya tienes cuenta? <a href="#" id="showLogin" style="color: var(--primary-color);">Inicia Sesión</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Principal -->
+    <div id="dashboardScreen" class="screen">
+        <div class="container">
+            <div class="nav-bar">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">U</div>
+                    <span id="welcomeUser">Bienvenido</span>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Escáner de Documentos -->
+                <div class="card">
+                    <h2>Escanear Documento</h2>
+                    <p>Escanea ambas caras de tu documento para crear una tarjeta virtual</p>
+                    <button class="btn btn-secondary" id="startScanBtn" style="width: 100%; margin-top: 1rem;">
+                        📷 Escanear Documento
+                    </button>
+                </div>
+
+                <!-- Mis Documentos -->
+                <div class="card">
+                    <h2>Mis Documentos</h2>
+                    <p>Documentos escaneados: <span id="docCount">0</span></p>
+                    <div id="documentsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Escáner -->
+    <div id="scannerScreen" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="header">
+                    <h2>Escanear Documento</h2>
+                    <button class="btn btn-danger" id="cancelScanBtn">Cancelar</button>
+                </div>
+
+                <div class="scanner-container">
+                    <div class="scan-step" id="scanStep">
+                        <h3>Paso 1: Escanear cara frontal</h3>
+                        <p>Coloca la cara frontal de tu documento frente a la cámara</p>
+                    </div>
+
+                    <div class="camera-preview">
+                        <video id="videoPreview" autoplay playsinline></video>
+                        <canvas id="captureCanvas"></canvas>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-success" id="captureBtn">📸 Capturar</button>
+                        <button class="btn btn-secondary" id="retakeBtn" style="display: none;">🔄 Repetir</button>
+                    </div>
+
+                    <div id="previewContainer" style="margin-top: 2rem; display: none;">
+                        <h3>Vista Previa</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                            <div>
+                                <h4>Cara Frontal</h4>
+                                <img id="frontPreview" style="width: 100%; border-radius: 8px; border: 2px solid var(--border-color);">
+                            </div>
+                            <div>
+                                <h4>Cara Posterior</h4>
+                                <img id="backPreview" style="width: 100%; border-radius: 8px; border: 2px solid var(--border-color);">
+                            </div>
+                        </div>
+                        <button class="btn btn-success" id="generateCardBtn" style="width: 100%; margin-top: 1rem;">
+                            ✨ Generar Tarjeta Virtual
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Tarjeta Virtual -->
+    <div id="cardScreen" class="screen">
+        <div class="container">
+            <div class="card">
+                <div class="header">
+                    <h2>Tu Tarjeta Virtual</h2>
+                    <div>
+                        <button class="btn btn-secondary" id="downloadPdfBtn">📄 Descargar PDF</button>
+                        <button class="btn" id="backToDashboardBtn">🏠 Volver</button>
+                    </div>
+                </div>
+
+                <div class="virtual-card" id="virtualCard">
+                    <div class="card-header">
+                        <h3>Documento Digital</h3>
+                        <span id="cardDate"></span>
+                    </div>
+                    <div class="card-info">
+                        <div>
+                            <strong>Titular:</strong>
+                            <span id="cardHolder">Usuario</span>
+                        </div>
+                        <div>
+                            <strong>ID:</strong>
+                            <span id="cardId"></span>
+                        </div>
+                        <div>
+                            <strong>Tipo:</strong>
+                            <span>Documento de Identidad</span>
+                        </div>
+                        <div>
+                            <strong>Estado:</strong>
+                            <span style="color: #10b981;">✓ Verificado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                    <div class="card">
+                        <h3>Cara Frontal</h3>
+                        <img id="finalFrontImg" style="width: 100%; border-radius: 12px; margin-top: 1rem;">
+                    </div>
+                    <div class="card">
+                        <h3>Cara Posterior</h3>
+                        <img id="finalBackImg" style="width: 100%; border-radius: 12px; margin-top: 1rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let currentUser = null;
+        let videoStream = null;
+        let frontImage = null;
+        let backImage = null;
+        let scanStep = 1;
+        let documents = [];
+
+        // Elementos del DOM
+        const screens = {
+            login: document.getElementById('loginScreen'),
+            register: document.getElementById('registerScreen'),
+            dashboard: document.getElementById('dashboardScreen'),
+            scanner: document.getElementById('scannerScreen'),
+            card: document.getElementById('cardScreen')
+        };
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDocuments();
+            initializeEventListeners();
+            checkSession();
+        });
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Autenticación
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('showRegister').addEventListener('click', () => showScreen('register'));
+            document.getElementById('showLogin').addEventListener('click', () => showScreen('login'));
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Escáner
+            document.getElementById('startScanBtn').addEventListener('click', startScanning);
+            document.getElementById('cancelScanBtn').addEventListener('click', cancelScanning);
+            document.getElementById('captureBtn').addEventListener('click', captureImage);
+            document.getElementById('retakeBtn').addEventListener('click', retakeImage);
+            document.getElementById('generateCardBtn').addEventListener('click', generateVirtualCard);
+
+            // Tarjeta Virtual
+            document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+            document.getElementById('backToDashboardBtn').addEventListener('click', () => showScreen('dashboard'));
+        }
+
+        // Gestión de pantallas
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => screen.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        // Autenticación
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            showLoading(true);
+
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
+                
+                if (users[username] && users[username].password === password) {
+                    currentUser = username;
+                    sessionStorage.setItem('currentUser', username);
+                    showScreen('dashboard');
+                    updateDashboard();
+                    showAlert('¡Bienvenido de vuelta!', 'success');
+                } else {
+                    showAlert('Usuario o contraseña incorrectos', 'error');
+                }
+                
+                showLoading(false);
+            }, 1500);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showAlert('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
             
-            // Simula la visualización del anuncio y desbloqueo del contenido
-            setTimeout(function() {
-                document.getElementById(contentId).style.filter = 'none';
-                var overlays = document.querySelectorAll('#' + contentId + ' + .overlay');
-                overlays.forEach(function(overlay) {
-                    overlay.style.display = 'none';
+            if (users[username]) {
+                showAlert('El usuario ya existe', 'error');
+                return;
+            }
+
+            users[username] = { password, documents: [] };
+            localStorage.setItem('billetera_users', JSON.stringify(users));
+            
+            showAlert('¡Cuenta creada exitosamente!', 'success');
+            document.getElementById('registerForm').reset();
+            showScreen('login');
+        }
+
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            showScreen('login');
+            showAlert('Sesión cerrada', 'success');
+        }
+
+        function checkSession() {
+            const sessionUser = sessionStorage.getItem('currentUser');
+            if (sessionUser) {
+                currentUser = sessionUser;
+                showScreen('dashboard');
+                updateDashboard();
+            }
+        }
+
+        function showLoading(show) {
+            const text = document.getElementById('loginText');
+            const loading = document.getElementById('loginLoading');
+            
+            if (show) {
+                text.style.display = 'none';
+                loading.style.display = 'inline-block';
+            } else {
+                text.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            const avatar = document.getElementById('userAvatar');
+            const welcome = document.getElementById('welcomeUser');
+            
+            avatar.textContent = currentUser.charAt(0).toUpperCase();
+            welcome.textContent = `Bienvenido, ${currentUser}`;
+            
+            loadUserDocuments();
+        }
+
+        function loadUserDocuments() {
+            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
+            const userDocs = users[currentUser]?.documents || [];
+            
+            document.getElementById('docCount').textContent = userDocs.length;
+            
+            const container = document.getElementById('documentsContainer');
+            container.innerHTML = '';
+            
+            if (userDocs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); margin-top: 1rem;">No hay documentos escaneados</p>';
+                return;
+            }
+
+            userDocs.forEach((doc, index) => {
+                const docCard = document.createElement('div');
+                docCard.className = 'document-card';
+                docCard.innerHTML = `
+                    <div class="document-preview">
+                        <img src="${doc.frontImage}" alt="Documento ${index + 1}">
+                    </div>
+                    <h4>Documento ${index + 1}</h4>
+                    <p>Creado: ${doc.date}</p>
+                    <button class="btn btn-secondary" onclick="viewDocument(${index})" style="width: 100%; margin-top: 1rem;">
+                        Ver Documento
+                    </button>
+                `;
+                container.appendChild(docCard);
+            });
+        }
+
+        function viewDocument(index) {
+            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
+            const doc = users[currentUser].documents[index];
+            
+            if (doc) {
+                frontImage = doc.frontImage;
+                backImage = doc.backImage;
+                showVirtualCard();
+            }
+        }
+
+        // Escáner
+        async function startScanning() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
                 });
-            }, 2000); // Ajusta este tiempo según la duración del anuncio
+                
+                videoStream = stream;
+                document.getElementById('videoPreview').srcObject = stream;
+                
+                scanStep = 1;
+                frontImage = null;
+                backImage = null;
+                updateScanStep();
+                showScreen('scanner');
+            } catch (error) {
+                showAlert('Error al acceder a la cámara: ' + error.message, 'error');
+            }
+        }
+
+        function cancelScanning() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            showScreen('dashboard');
+        }
+
+        function updateScanStep() {
+            const stepElement = document.getElementById('scanStep');
+            const previewContainer = document.getElementById('previewContainer');
+            const retakeBtn = document.getElementById('retakeBtn');
+            
+            if (scanStep === 1) {
+                stepElement.innerHTML = `
+                    <h3>Paso 1: Escanear cara frontal</h3>
+                    <p>Coloca la cara frontal de tu documento frente a la cámara</p>
+                `;
+                previewContainer.style.display = 'none';
+                retakeBtn.style.display = 'none';
+            } else if (scanStep === 2) {
+                stepElement.innerHTML = `
+                    <h3>Paso 2: Escanear cara posterior</h3>
+                    <p>Voltea el documento y escanea la cara posterior</p>
+                `;
+                retakeBtn.style.display = 'inline-block';
+            } else if (scanStep === 3) {
+                stepElement.innerHTML = `
+                    <h3>¡Escaneado completo!</h3>
+                    <p>Revisa las imágenes y genera tu tarjeta virtual</p>
+                `;
+                previewContainer.style.display = 'block';
+                document.getElementById('frontPreview').src = frontImage;
+                document.getElementById('backPreview').src = backImage;
+            }
+        }
+
+        function captureImage() {
+            const video = document.getElementById('videoPreview');
+            const canvas = document.getElementById('captureCanvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            context.drawImage(video, 0, 0);
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            if (scanStep === 1) {
+                frontImage = imageData;
+                scanStep = 2;
+                updateScanStep();
+            } else if (scanStep === 2) {
+                backImage = imageData;
+                scanStep = 3;
+                updateScanStep();
+            }
+        }
+
+        function retakeImage() {
+            if (scanStep === 2) {
+                frontImage = null;
+                scanStep = 1;
+            } else if (scanStep === 3) {
+                backImage = null;
+                scanStep = 2;
+            }
+            updateScanStep();
+        }
+
+        function generateVirtualCard() {
+            if (!frontImage || !backImage) {
+                showAlert('Faltan imágenes del documento', 'error');
+                return;
+            }
+
+            // Guardar documento
+            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
+            if (!users[currentUser].documents) {
+                users[currentUser].documents = [];
+            }
+            
+            const newDoc = {
+                frontImage,
+                backImage,
+                date: new Date().toLocaleDateString(),
+                id: Date.now()
+            };
+            
+            users[currentUser].documents.push(newDoc);
+            localStorage.setItem('billetera_users', JSON.stringify(users));
+            
+            // Limpiar stream
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            showVirtualCard();
+        }
+
+        function showVirtualCard() {
+            // Actualizar información de la tarjeta
+            document.getElementById('cardHolder').textContent = currentUser;
+            document.getElementById('cardDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('cardId').textContent = '#' + Date.now().toString().slice(-6);
+            
+            // Mostrar imágenes
+            document.getElementById('finalFrontImg').src = frontImage;
+            document.getElementById('finalBackImg').src = backImage;
+            
+            showScreen('card');
+            showAlert('¡Tarjeta virtual generada exitosamente!', 'success');
+        }
+
+        // PDF Generation
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título
+            doc.setFontSize(20);
+            doc.text('Tu Billetera - Documento Digital', 20, 30);
+            
+            // Información
+            doc.setFontSize(12);
+            doc.text(`Titular: ${currentUser}`, 20, 50);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 60);
+            doc.text(`ID: #${Date.now().toString().slice(-6)}`, 20, 70);
+            
+            // Nota sobre las imágenes
+            doc.setFontSize(10);
+            doc.text('Cara Frontal del Documento:', 20, 90);
+            doc.text('Cara Posterior del Documento:', 20, 160);
+            
+            // Convertir imágenes base64 a PDF
+            if (frontImage) {
+                doc.addImage(frontImage, 'JPEG', 20, 100, 80, 50);
+            }
+            
+            if (backImage) {
+                doc.addImage(backImage, 'JPEG', 20, 170, 80, 50);
+            }
+            
+            // Descargar
+            doc.save(`documento-${currentUser}-${Date.now()}.pdf`);
+            showAlert('PDF descargado exitosamente', 'success');
+        }
+
+        // Alertas
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '10000';
+            alertDiv.style.minWidth = '300px';
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Utilidades
+        function loadDocuments() {
+            documents = JSON.parse(localStorage.getItem('billetera_documents') || '[]');
         }
     </script>
 </body>
