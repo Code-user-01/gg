@@ -1,2638 +1,861 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentos Virtuales</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Descarga Vuelve – App de Rehabilitación</title>
+    <meta
+      name="description"
+      content="Descarga la app Vuelve en Android. Apoyo, hábitos, progreso e insignias para tu proceso de rehabilitación."
+    />
+    <link rel="icon" href="logo.png" type="image/png" />
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      /* ===== VARIABLES CSS ===== */
+      :root {
+        /* Colores principales */
+        --primary: #6650a4;
+        --secondary: #7c93ff;
+        --accent: #8e7cff;
+        --success: #2e7d32;
+        --warning: #f57c00;
+        --danger: #d32f2f;
 
-        :root {
-            --primary-color: #4f46e5;
-            --primary-dark: #3730a3;
-            --secondary-color: #06b6d4;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
+        /* Backgrounds */
+        --bg-primary: #f6f7fb;
+        --bg-secondary: #eff1ff;
+        --bg-tertiary: #e8f0ff;
+        --card-bg: #ffffff;
+        --input-bg: #f9faff;
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: var(--text-primary);
-        }
+        /* Textos */
+        --text-primary: #1c1b20;
+        --text-secondary: #6b6b76;
+        --text-muted: #9ca3af;
 
+        /* Efectos */
+        --radius-sm: 12px;
+        --radius-md: 16px;
+        --radius-lg: 20px;
+        --radius-xl: 24px;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+        --shadow-neumorphism: 8px 8px 24px rgba(0, 0, 0, 0.08),
+          -8px -8px 24px rgba(255, 255, 255, 0.5);
+
+        /* Transiciones */
+        --transition-fast: 0.15s ease;
+        --transition-smooth: 0.25s ease;
+      }
+
+      /* ===== RESET Y BASE ===== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text-primary);
+        background: linear-gradient(
+          135deg,
+          var(--bg-primary) 0%,
+          var(--bg-secondary) 50%,
+          var(--bg-tertiary) 100%
+        );
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        overflow-x: hidden;
+      }
+
+      /* ===== COMPONENTES BASE ===== */
+      .container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-neumorphism);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(
+          closest-side,
+          rgba(126, 102, 255, 0.15),
+          transparent
+        );
+        filter: blur(40px);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .card > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ===== PANTALLA DE LOGIN ===== */
+      .login-screen {
+        display: block;
+      }
+
+      .login-screen.hidden {
+        display: none;
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .login-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      .login-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: var(--radius-md);
+        background: var(--input-bg);
+        color: var(--text-primary);
+        transition: all var(--transition-smooth);
+        outline: none;
+      }
+
+      .form-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 80, 164, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .error-message {
+        display: none;
+        background: var(--danger);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        animation: slideDown 0.3s ease;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-smooth);
+        box-shadow: 0 4px 14px rgba(102, 80, 164, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
+
+      .btn-primary:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary:active {
+        transform: translateY(1px);
+      }
+
+      /* ===== PANTALLA PRINCIPAL ===== */
+      .main-screen {
+        display: none;
+      }
+
+      .main-screen.show {
+        display: block;
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .app-logo {
+        width: 4rem;
+        height: 4rem;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, #fff, #f5f7ff, #e9edff);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .app-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .app-info h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+      }
+
+      .app-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .app-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+
+      .tag {
+        background: #eef0ff;
+        color: #3b3f9f;
+        padding: 0.375rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid #dfe4ff;
+      }
+
+      .features-section {
+        margin: 1.5rem 0;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+      }
+
+      .features-list {
+        list-style: none;
+        space-y: 0.75rem;
+      }
+
+      .features-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+      }
+
+      .features-list li::before {
+        content: "✨";
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+      }
+
+      .feature-text {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .feature-text strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .download-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .btn-download {
+        width: 100%;
+        padding: 1.125rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, var(--success), #4caf50);
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-smooth);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-download::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
+
+      .btn-download:hover::before {
+        left: 100%;
+      }
+
+      .btn-download:active {
+        transform: translateY(1px);
+      }
+
+      .install-info {
+        background: #fff8e1;
+        border: 1px solid #ffecb3;
+        border-radius: var(--radius-sm);
+        padding: 1rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #5d4037;
+        line-height: 1.5;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+
+      .logout-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        display: inline-block;
+        transition: color var(--transition-fast);
+      }
+
+      .logout-link:hover {
+        color: var(--accent);
+      }
+
+      /* ===== ANIMACIONES ===== */
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .main-screen.show {
+        animation: fadeIn 0.4s ease;
+      }
+
+      /* ===== RESPONSIVE DESIGN (Desktop) ===== */
+      @media (min-width: 768px) {
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+          max-width: 480px;
         }
 
         .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 2.5rem;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
+        .login-title {
+          font-size: 2rem;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
+        .app-info h1 {
+          font-size: 1.75rem;
         }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
+        .app-logo {
+          width: 5rem;
+          height: 5rem;
         }
+      }
 
-        .btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 520px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        .card {
+          padding: 3rem;
         }
+      }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--secondary-color), #0891b2);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--error-color), #dc2626);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: var(--card-bg);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .auth-container {
-            max-width: 400px;
-            margin: 5vh auto;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .nav-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-        }
-
-        .scanner-container {
-            text-align: center;
-        }
-
-        .camera-preview {
-            width: 100%;
-            max-width: 500px;
-            height: 350px;
-            background: #f0f0f0;
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            margin: 1rem auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .camera-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        .camera-preview canvas {
-            display: none;
-        }
-
-        .crop-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            cursor: crosshair;
-        }
-
-        .crop-area {
-            position: absolute;
-            border: 3px solid #10b981;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            background: rgba(16, 185, 129, 0.1);
-            cursor: move;
-        }
-
-        .crop-handle {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #10b981;
-            border: 2px solid white;
-            border-radius: 50%;
-            cursor: grab;
-        }
-
-        .crop-handle:active {
-            cursor: grabbing;
-        }
-
-        .crop-handle.nw { top: -10px; left: -10px; cursor: nw-resize; }
-        .crop-handle.ne { top: -10px; right: -10px; cursor: ne-resize; }
-        .crop-handle.sw { bottom: -10px; left: -10px; cursor: sw-resize; }
-        .crop-handle.se { bottom: -10px; right: -10px; cursor: se-resize; }
-
-        .scan-step {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: rgba(79, 70, 229, 0.1);
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .documents-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        /* Tarjeta 3D Interactiva */
-        .document-card-3d {
-            perspective: 1000px;
-            width: 320px;
-            height: 200px;
-            margin: 2rem auto;
-            cursor: grab;
-            user-select: none;
-        }
-
-        .document-card-3d:active {
-            cursor: grabbing;
-        }
-
-        .card-3d-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-3d-inner.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .card-face img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .card-face:hover img {
-            transform: scale(1.05);
-        }
-
-        .card-back {
-            transform: rotateY(180deg);
-        }
-
-        .card-controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .card-info-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            color: white;
-            padding: 1rem;
-            font-size: 0.9rem;
-        }
-
-        /* Documento realista */
-        .realistic-document {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
-            border: 1px solid #d1d9ff;
-            position: relative;
-            overflow: hidden;
-        }
+      /* ===== ESTADOS DE CARGA ===== */
+      .loading {
+        opacity: 0.7;
+        pointer-events: none;
+      }
 
-        .realistic-document::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .document-preview {
-            width: 100%;
-            height: 150px;
-            background: var(--bg-color);
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--border-color);
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .document-preview:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .document-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-
-        .virtual-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .virtual-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 12px;
-            margin: 1rem 0;
-            border-left: 4px solid;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            min-width: 300px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: var(--success-color);
-            color: var(--success-color);
-        }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: var(--error-color);
-            color: var(--error-color);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .detection-status {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            z-index: 20;
-        }
-
-        .detection-status.detected {
-            background: rgba(16, 185, 129, 0.9);
-        }
-
-        .auto-capture-countdown {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(16, 185, 129, 0.9);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50%;
-            font-size: 2rem;
-            font-weight: bold;
-            z-index: 30;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-
-        /* ===== RESPONSIVE DESIGN MEJORADO ===== */
-        
-        /* Móviles muy pequeños (320px - 374px) */
-        @media (max-width: 374px) {
-            .container {
-                padding: 8px;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .header p {
-                font-size: 0.9rem;
-            }
-            
-            .card {
-                padding: 1rem;
-                border-radius: 16px;
-            }
-            
-            .btn {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-                width: 100%;
-                justify-content: center;
-                margin-bottom: 0.5rem;
-            }
-            
-            .form-control {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .nav-bar {
-                flex-direction: column;
-                gap: 0.5rem;
-                padding: 0.8rem 1rem;
-                text-align: center;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 0.5rem;
-                font-size: 0.9rem;
-            }
-            
-            .avatar {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .camera-preview {
-                height: 250px;
-                margin: 0.5rem auto;
-            }
-            
-            .document-card-3d {
-                width: 260px;
-                height: 160px;
-                margin: 1rem auto;
-            }
-            
-            .card-controls {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .card-controls .btn {
-                width: 100%;
-            }
-            
-            .scan-step {
-                padding: 0.8rem;
-                margin: 0.8rem 0;
-            }
-            
-            .scan-step h3 {
-                font-size: 1.1rem;
-            }
-            
-            .scan-step p {
-                font-size: 0.9rem;
-            }
-            
-            .alert {
-                right: 8px;
-                left: 8px;
-                top: 10px;
-                min-width: auto;
-                font-size: 0.9rem;
-            }
-            
-            .detection-status {
-                font-size: 0.8rem;
-                padding: 0.3rem 0.8rem;
-            }
-            
-            .auto-capture-countdown {
-                font-size: 1.5rem;
-                padding: 0.8rem 1.5rem;
-            }
-        }
-        
-        /* Móviles pequeños (375px - 480px) */
-        @media (min-width: 375px) and (max-width: 480px) {
-            .container {
-                padding: 12px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .card {
-                padding: 1.2rem;
-            }
-            
-            .btn {
-                padding: 11px 20px;
-                font-size: 0.95rem;
-            }
-            
-            .nav-bar {
-                flex-direction: column;
-                gap: 0.8rem;
-                padding: 1rem 1.5rem;
-            }
-            
-            .camera-preview {
-                height: 280px;
-            }
-            
-            .document-card-3d {
-                width: 280px;
-                height: 175px;
-            }
-            
-            .card-controls {
-                gap: 0.8rem;
-            }
-            
-            .card-info {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-        }
-        
-        /* Móviles medianos (481px - 568px) */
-        @media (min-width: 481px) and (max-width: 568px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 2.2rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-            
-            .btn {
-                padding: 12px 22px;
-                font-size: 1rem;
-            }
-            
-            .nav-bar {
-                flex-direction: row;
-                justify-content: space-between;
-                padding: 1rem 1.5rem;
-            }
-            
-            .user-info {
-                flex-direction: row;
-                gap: 1rem;
-            }
-            
-            .camera-preview {
-                height: 320px;
-                max-width: 450px;
-            }
-            
-            .document-card-3d {
-                width: 300px;
-                height: 190px;
-            }
-            
-            .card-controls {
-                flex-direction: row;
-                gap: 1rem;
-                justify-content: center;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-        }
-        
-        /* Móviles grandes / Phablets (569px - 768px) */
-        @media (min-width: 569px) and (max-width: 768px) {
-            .container {
-                padding: 18px;
-            }
-            
-            .header h1 {
-                font-size: 2.3rem;
-            }
-            
-            .card {
-                padding: 1.8rem;
-            }
-            
-            .auth-container {
-                max-width: 450px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1.5rem;
-            }
-            
-            .camera-preview {
-                height: 350px;
-                max-width: 500px;
-            }
-            
-            .document-card-3d {
-                width: 320px;
-                height: 200px;
-            }
-            
-            .card-info {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 1.5rem;
-            }
-        }
-        
-        /* Tablets portrait (769px - 834px) */
-        @media (min-width: 769px) and (max-width: 834px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2.4rem;
-            }
-            
-            .auth-container {
-                max-width: 500px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                gap: 2rem;
-            }
-            
-            .camera-preview {
-                height: 380px;
-                max-width: 550px;
-            }
-            
-            .document-card-3d {
-                width: 350px;
-                height: 220px;
-            }
-            
-            .card-controls {
-                gap: 1.2rem;
-            }
-            
-            .btn {
-                padding: 12px 24px;
-                font-size: 1rem;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 1.8rem;
-            }
-        }
-        
-        /* Tablets landscape (835px - 1024px) */
-        @media (min-width: 835px) and (max-width: 1024px) {
-            .container {
-                max-width: 900px;
-                padding: 25px;
-            }
-            
-            .header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .auth-container {
-                max-width: 450px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 2rem;
-            }
-            
-            .camera-preview {
-                height: 400px;
-                max-width: 600px;
-            }
-            
-            .document-card-3d {
-                width: 380px;
-                height: 240px;
-            }
-            
-            .card-info {
-                grid-template-columns: 1fr 1fr;
-                gap: 1.5rem;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 2rem;
-            }
-            
-            .scan-step {
-                padding: 1.2rem;
-            }
-            
-            .nav-bar {
-                padding: 1.2rem 2rem;
-            }
-        }
-        
-        /* Desktop pequeño (1025px - 1199px) */
-        @media (min-width: 1025px) and (max-width: 1199px) {
-            .container {
-                max-width: 1000px;
-                padding: 25px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-                gap: 2.5rem;
-            }
-            
-            .camera-preview {
-                height: 420px;
-                max-width: 650px;
-            }
-            
-            .document-card-3d {
-                width: 400px;
-                height: 250px;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 2rem;
-            }
-            
-            .auth-container {
-                max-width: 420px;
-                margin: 8vh auto;
-            }
-        }
-        
-        /* Desktop mediano (1200px - 1439px) */
-        @media (min-width: 1200px) and (max-width: 1439px) {
-            .container {
-                max-width: 1150px;
-                padding: 30px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-                gap: 3rem;
-            }
-            
-            .camera-preview {
-                height: 450px;
-                max-width: 700px;
-            }
-            
-            .document-card-3d {
-                width: 420px;
-                height: 265px;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2.5rem;
-            }
-        }
-        
-        /* Desktop grande (1440px+) */
-        @media (min-width: 1440px) {
-            .container {
-                max-width: 1300px;
-                padding: 35px;
-            }
-            
-            .header h1 {
-                font-size: 3rem;
-            }
-            
-            .header p {
-                font-size: 1.2rem;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-                gap: 3.5rem;
-            }
-            
-            .camera-preview {
-                height: 500px;
-                max-width: 800px;
-            }
-            
-            .document-card-3d {
-                width: 450px;
-                height: 285px;
-            }
-            
-            .card {
-                padding: 2.5rem;
-            }
-            
-            .btn {
-                padding: 14px 28px;
-                font-size: 1.1rem;
-            }
-            
-            .documents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                gap: 3rem;
-            }
-            
-            .auth-container {
-                max-width: 500px;
-                margin: 10vh auto;
-            }
-            
-            .scan-step {
-                padding: 1.5rem;
-            }
-            
-            .scan-step h3 {
-                font-size: 1.3rem;
-            }
-            
-            .scan-step p {
-                font-size: 1.1rem;
-            }
-        }
-        
-        /* Orientación landscape para móviles */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .auth-container {
-                margin: 2vh auto;
-            }
-            
-            .header {
-                margin-bottom: 1rem;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-                margin-bottom: 0.3rem;
-            }
-            
-            .header p {
-                font-size: 0.9rem;
-            }
-            
-            .card {
-                padding: 1rem;
-            }
-            
-            .form-group {
-                margin-bottom: 1rem;
-            }
-            
-            .camera-preview {
-                height: 220px;
-                margin: 0.5rem auto;
-            }
-            
-            .document-card-3d {
-                width: 280px;
-                height: 175px;
-                margin: 1rem auto;
-            }
-            
-            .nav-bar {
-                padding: 0.8rem 1.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .dashboard-grid {
-                gap: 1rem;
-            }
-        }
-        
-        /* Mejoras para touch devices */
-        @media (pointer: coarse) {
-            .btn {
-                min-height: 44px;
-                padding: 12px 24px;
-            }
-            
-            .form-control {
-                min-height: 44px;
-                padding: 12px 16px;
-            }
-            
-            .document-preview {
-                min-height: 44px;
-                cursor: pointer;
-            }
-            
-            .card-controls .btn {
-                min-height: 48px;
-                padding: 14px 20px;
-            }
-            
-            .document-card-3d {
-                cursor: grab;
-            }
-            
-            .document-card-3d:active {
-                cursor: grabbing;
-            }
-        }
-        
-        /* High DPI / Retina displays */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            .card {
-                box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15), 0 6px 8px -2px rgba(0, 0, 0, 0.08);
-            }
-            
-            .document-card-3d .card-3d-inner {
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-            }
-            
-            .btn:hover {
-                box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35);
-            }
-        }
-
-        /* Efectos especiales para documentos */
-        .security-feature {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            animation: securityGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes securityGlow {
-            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-        }
-
-        /* ===== MEJORAS ADICIONALES PARA MÓVILES ===== */
-        
-        /* Smooth scrolling mejorado */
-        html {
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-        }
-        
-        /* Mejoras táctiles globales */
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-        }
-        
-        /* Inputs más accesibles en móviles */
-        input, select, textarea {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            border-radius: 12px;
-        }
-        
-        /* Mejoras para formularios en móviles pequeños */
-        @media (max-width: 480px) {
-            .form-group {
-                margin-bottom: 1.2rem;
-            }
-            
-            .form-group label {
-                font-size: 0.95rem;
-                margin-bottom: 0.4rem;
-            }
-            
-            .form-control {
-                font-size: 16px; /* Previene zoom en iOS */
-                line-height: 1.4;
-            }
-            
-            .form-control:focus {
-                transform: none; /* Evita movimiento en focus */
-            }
-        }
-        
-        /* Navegación más amigable en móviles */
-        @media (max-width: 568px) {
-            .nav-bar {
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .user-info {
-                font-size: 0.9rem;
-            }
-            
-            .avatar {
-                flex-shrink: 0;
-            }
-        }
-        
-        /* Cards más amigables para touch */
-        @media (max-width: 768px) {
-            .card {
-                margin-bottom: 1rem;
-                touch-action: manipulation;
-            }
-            
-            .document-preview {
-                transition: all 0.2s ease;
-                transform: scale(1);
-            }
-            
-            .document-preview:active {
-                transform: scale(0.98);
-            }
-            
-            .card-controls {
-                position: sticky;
-                bottom: 0;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                padding: 1rem;
-                margin: -1rem;
-                margin-top: 1rem;
-                border-radius: 0 0 20px 20px;
-            }
-        }
-        
-        /* Mejoras para scanner en móviles */
-        @media (max-width: 568px) {
-            .scanner-container {
-                padding: 0;
-            }
-            
-            .detection-overlay {
-                border-radius: 12px;
-            }
-            
-            .document-outline {
-                border-width: 2px;
-                animation: documentPulse 2s ease-in-out infinite;
-            }
-            
-            @media (max-width: 568px) {
-                #cropContainer {
-                    margin-top: 1rem;
-                }
-                
-                #cropContainer h3 {
-                    font-size: 1.1rem;
-                }
-                
-                #cropContainer p {
-                    font-size: 0.9rem;
-                }
-                
-                .crop-area {
-                    border-width: 2px;
-                }
-                
-                .crop-handle {
-                    width: 30px;
-                    height: 30px;
-                    border-width: 3px;
-                }
-                
-                .crop-handle.nw { top: -15px; left: -15px; }
-                .crop-handle.ne { top: -15px; right: -15px; }
-                .crop-handle.sw { bottom: -15px; left: -15px; }
-                .crop-handle.se { bottom: -15px; right: -15px; }
-                
-                #cropContainer > div:last-child {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.5rem;
-                }
-                
-                #cropContainer > div:last-child .btn {
-                    width: 100%;
-                }
-            }
-            
-            #previewContainer {
-                margin-top: 1rem;
-            }
-            
-            #previewContainer > div {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            #frontPreview, #backPreview {
-                width: 100%;
-                max-height: 200px;
-                object-fit: contain;
-            }
-        }
-        
-        /* Alertas responsivas */
-        @media (max-width: 480px) {
-            .alert {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                width: auto;
-                min-width: auto;
-                border-radius: 12px;
-                z-index: 10001;
-                animation: slideDown 0.3s ease;
-            }
-            
-            @keyframes slideDown {
-                from { 
-                    transform: translateY(-100%);
-                    opacity: 0;
-                }
-                to { 
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-        }
-        
-        /* Mejoras específicas para tarjeta 3D en móviles */
-        @media (max-width: 480px) {
-            .document-card-3d {
-                touch-action: manipulation;
-                margin: 1.5rem auto;
-            }
-            
-            .card-face img {
-                object-fit: contain;
-                padding: 8px;
-            }
-            
-            .card-info-overlay {
-                padding: 0.8rem;
-                font-size: 0.8rem;
-                background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
-            }
-            
-            .security-feature {
-                right: 15px;
-                top: 15px;
-                width: 30px;
-                height: 30px;
-                font-size: 1rem;
-            }
-        }
-        
-        /* Optimizaciones para tablets */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
-                align-items: start;
-            }
-            
-            .scanner-container {
-                max-width: 600px;
-                margin: 0 auto;
-            }
-            
-            .card-controls {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .document-card-3d {
-                margin: 2rem auto;
-            }
-        }
-        
-        /* Modo oscuro mejorado para móviles */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #0f172a;
-                --card-bg: #1e293b;
-                --text-primary: #f1f5f9;
-                --text-secondary: #94a3b8;
-                --border-color: #334155;
-            }
-            
-            body {
-                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            }
-            
-            .card {
-                background: rgba(30, 41, 59, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            
-            .camera-preview {
-                background: #334155;
-                border-color: #475569;
-            }
-            
-            @media (max-width: 768px) {
-                .nav-bar {
-                    background: rgba(30, 41, 59, 0.95);
-                }
-                
-                .card-controls {
-                    background: rgba(30, 41, 59, 0.95);
-                }
-            }
-        }
-        
-        /* Animaciones optimizadas para móviles */
-        @media (prefers-reduced-motion: no-preference) {
-            .card-3d-inner {
-                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-            
-            .btn {
-                transition: all 0.2s ease;
-            }
-            
-            .document-preview {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-        }
-        
-        /* Reduce animaciones para usuarios que las prefieren reducidas */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            .card-3d-inner {
-                transition: none;
-            }
-            
-            .shimmer::before {
-                animation: none;
-            }
-        }
-        
-        /* Mejoras para accesibilidad */
-        @media (min-width: 1200px) {
-            /* Aumentar tamaños para pantallas grandes */
-            .btn {
-                min-height: 48px;
-            }
-            
-            .form-control {
-                min-height: 48px;
-            }
-            
-            .card {
-                transition: transform 0.2s ease;
-            }
-            
-            .card:hover {
-                transform: translateY(-2px);
-            }
-        }
-        
-        /* Soporte para pantallas ultra anchas */
-        @media (min-width: 1800px) {
-            .container {
-                max-width: 1600px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 4rem;
-            }
-            
-            .document-card-3d {
-                width: 500px;
-                height: 315px;
-            }
-            
-            .camera-preview {
-                height: 600px;
-                max-width: 900px;
-            }
-        }
+      .loading .btn-primary,
+      .loading .btn-download {
+        background: #ccc;
+        cursor: not-allowed;
+      }
     </style>
-</head>
-<body>
-    <!-- Pantalla de Login -->
-    <div id="loginScreen" class="screen active">
-        <div class="container">
-            <div class="auth-container">
-                <div class="card">
-                    <div class="header">
-                        <h1>Tu Billetera</h1>
-                        <p>Tus documentos digitales seguros</p>
-                    </div>
-                    
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="username">Usuario</label>
-                            <input type="text" id="username" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="password">Contraseña</label>
-                            <input type="password" id="password" class="form-control" required>
-                        </div>
-                        
-                        <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">
-                            <span id="loginText">Iniciar Sesión</span>
-                            <span id="loginLoading" class="loading" style="display: none;"></span>
-                        </button>
-                    </form>
-                    
-                    <div style="text-align: center;">
-                        <p>¿No tienes cuenta? <a href="#" id="showRegister" style="color: var(--primary-color);">Regístrate</a></p>
-                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
-                            <strong>Demo:</strong> Crear cualquier usuario y contraseña
-                        </p>
-                    </div>
-                </div>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ===== PANTALLA DE LOGIN ===== -->
+      <div class="login-screen" id="loginScreen">
+        <div class="card">
+          <div class="login-header">
+            <h1 class="login-title">Acceso Seguro</h1>
+            <p class="login-subtitle">
+              Ingresa tus credenciales para continuar
+            </p>
+          </div>
+
+          <div id="errorMessage" class="error-message">
+            Usuario o contraseña incorrectos
+          </div>
+
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="username" class="form-label">Usuario</label>
+              <input
+                type="text"
+                id="username"
+                class="form-input"
+                placeholder="Ingresa tu usuario"
+                autocomplete="username"
+                required
+              />
             </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                class="form-input"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn-primary" id="loginBtn">
+              Ingresar
+            </button>
+          </form>
         </div>
+      </div>
+
+      <!-- ===== PANTALLA PRINCIPAL ===== -->
+      <div class="main-screen" id="mainScreen">
+        <div class="card">
+          <div class="app-header">
+            <div class="app-logo">
+              <img
+                src="logo.png"
+                alt="Logo Vuelve"
+                onerror="this.style.display='none'"
+              />
+            </div>
+            <div class="app-info">
+              <h1>Vuelve</h1>
+              <p class="app-subtitle">
+                Tu compañera en el proceso de rehabilitación. Registra días
+                limpios, emociones y alcanza tus objetivos.
+              </p>
+            </div>
+          </div>
+
+          <div class="app-tags">
+            <span class="tag">📱 Android</span>
+            <span class="tag">🔒 Offline</span>
+            <span class="tag" id="versionTag">v1.0.0</span>
+          </div>
+
+          <div class="features-section">
+            <h2 class="section-title">¿Qué incluye la app?</h2>
+            <ul class="features-list">
+              <li>
+                <span class="feature-text">
+                  <strong>Contador de días limpios</strong>
+                  con historial seguro e inalterable
+                </span>
+              </li>
+              <li>
+                <span class="feature-text">
+                  <strong>Sistema de objetivos</strong>
+                  personalizables con recompensas
+                </span>
+              </li>
+              <li>
+                <span class="feature-text">
+                  <strong>Consejos diarios</strong>
+                  motivacionales y de apoyo
+                </span>
+              </li>
+              <li>
+                <span class="feature-text">
+                  <strong>Registro de emociones</strong>
+                  para seguimiento personal
+                </span>
+              </li>
+              <li>
+                <span class="feature-text">
+                  <strong>Insignias de progreso</strong>
+                  por hitos alcanzados
+                </span>
+              </li>
+              <li>
+                <span class="feature-text">
+                  <strong>Botón de emergencia</strong>
+                  con contactos rápidos
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="download-section">
+            <a
+              href="./app-release.apk"
+              download="vuelve-v1.0.0.apk"
+              class="btn-download"
+              id="downloadBtn"
+            >
+              📦 Descargar APK
+            </a>
+
+            <div class="install-info" id="installInfo">
+              <strong>Instrucciones de instalación:</strong><br />
+              1. Descarga el archivo APK<br />
+              2. Abre el archivo descargado<br />
+              3. Permite la instalación desde fuentes desconocidas si te lo
+              solicita<br />
+              4. Confirma la instalación y ¡listo!
+            </div>
+          </div>
+
+          <div class="footer">
+            © <span id="currentYear"></span> Vuelve - Hecha con 💜 para tu
+            bienestar
+            <br />
+            <a href="#" class="logout-link" id="logoutLink">Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Pantalla de Registro -->
-    <div id="registerScreen" class="screen">
-        <div class="container">
-            <div class="auth-container">
-                <div class="card">
-                    <div class="header">
-                        <h1>Registro</h1>
-                        <p>Crea tu cuenta segura</p>
-                    </div>
-                    
-                    <form id="registerForm">
-                        <div class="form-group">
-                            <label for="newUsername">Usuario</label>
-                            <input type="text" id="newUsername" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="newPassword">Contraseña</label>
-                            <input type="password" id="newPassword" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirmar Contraseña</label>
-                            <input type="password" id="confirmPassword" class="form-control" required>
-                        </div>
-                        
-                        <button type="submit" class="btn" style="width: 100%; margin-bottom: 1rem;">Registrarse</button>
-                    </form>
-                    
-                    <div style="text-align: center;">
-                        <p>¿Ya tienes cuenta? <a href="#" id="showLogin" style="color: var(--primary-color);">Inicia Sesión</a></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard Principal -->
-    <div id="dashboardScreen" class="screen">
-        <div class="container">
-            <div class="nav-bar">
-                <div class="user-info">
-                    <div class="avatar" id="userAvatar">U</div>
-                    <span id="welcomeUser">Bienvenido</span>
-                </div>
-                <button class="btn btn-danger" id="logoutBtn">Cerrar Sesión</button>
-            </div>
-
-            <div class="dashboard-grid">
-                <!-- Escáner de Documentos -->
-                <div class="card">
-                    <h2>📸 Escáner Manual</h2>
-                    <p>Toma fotos de tu documento y recorta manualmente el área exacta que necesites guardar</p>
-                    <button class="btn btn-secondary" id="startScanBtn" style="width: 100%; margin-top: 1rem;">
-                        📷 Escanear Documento
-                    </button>
-                </div>
-
-                <!-- Mis Documentos -->
-                <div class="card">
-                    <h2>📄 Mis Documentos</h2>
-                    <p>Documentos escaneados: <span id="docCount">0</span></p>
-                    <div id="documentsContainer"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pantalla de Escáner -->
-    <div id="scannerScreen" class="screen">
-        <div class="container">
-            <div class="card">
-                <div class="header">
-                    <h2>📸 Escáner Manual</h2>
-                    <button class="btn btn-danger" id="cancelScanBtn">Cancelar</button>
-                </div>
-
-                <div class="scanner-container">
-                    <div class="scan-step" id="scanStep">
-                        <h3>Paso 1: Capturar cara frontal</h3>
-                        <p>Toma una foto de la cara frontal de tu documento. Luego podrás recortar la parte que necesites.</p>
-                    </div>
-
-                    <div class="camera-preview">
-                        <video id="videoPreview" autoplay playsinline></video>
-                        <canvas id="captureCanvas"></canvas>
-                        <canvas id="processCanvas"></canvas>
-                    </div>
-
-                    <div style="margin-top: 1rem;">
-                        <button class="btn btn-success" id="captureBtn">📸 Tomar Foto</button>
-                        <button class="btn btn-secondary" id="retakeBtn" style="display: none;">🔄 Repetir</button>
-                    </div>
-
-                    <!-- Pantalla de Recorte -->
-                    <div id="cropContainer" style="display: none; margin-top: 2rem;">
-                        <h3>✂️ Selecciona el área del documento</h3>
-                        <p>Arrastra para seleccionar el área del documento que quieres guardar</p>
-                        
-                        <div style="position: relative; margin: 1rem auto; max-width: 500px;">
-                            <img id="cropImage" style="width: 100%; border-radius: 12px; display: block;">
-                            <div class="crop-overlay" id="cropOverlay">
-                                <div class="crop-area" id="cropArea">
-                                    <div class="crop-handle nw"></div>
-                                    <div class="crop-handle ne"></div>
-                                    <div class="crop-handle sw"></div>
-                                    <div class="crop-handle se"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 1rem;">
-                            <button class="btn btn-success" id="confirmCropBtn">✅ Confirmar Recorte</button>
-                            <button class="btn btn-warning" id="resetCropBtn">🔄 Resetear Selección</button>
-                            <button class="btn btn-secondary" id="skipCropBtn">⏭️ Usar Foto Completa</button>
-                        </div>
-                    </div>
-
-                    <div id="previewContainer" style="margin-top: 2rem; display: none;">
-                        <h3>Vista Previa del Documento</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                            <div>
-                                <h4>Cara Frontal</h4>
-                                <img id="frontPreview" style="width: 100%; border-radius: 8px; border: 2px solid var(--border-color);">
-                            </div>
-                            <div>
-                                <h4>Cara Posterior</h4>
-                                <img id="backPreview" style="width: 100%; border-radius: 8px; border: 2px solid var(--border-color);">
-                            </div>
-                        </div>
-                        <button class="btn btn-success" id="generateCardBtn" style="width: 100%; margin-top: 1rem;">
-                            ✨ Generar Tarjeta Virtual 3D
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pantalla de Tarjeta Virtual -->
-    <div id="cardScreen" class="screen">
-        <div class="container">
-            <div class="card">
-                <div class="header">
-                    <h2>💳 Tu Documento Virtual</h2>
-                    <div class="card-controls">
-                        <button class="btn btn-secondary" id="downloadPdfBtn">📄 Descargar PDF</button>
-                        <button class="btn" id="backToDashboardBtn">🏠 Volver</button>
-                    </div>
-                </div>
-
-                <!-- Tarjeta 3D Interactiva -->
-                <div class="document-card-3d" id="documentCard3D">
-                    <div class="card-3d-inner" id="card3DInner">
-                        <div class="card-face card-front realistic-document">
-                            <img id="finalFrontImg" alt="Cara frontal del documento">
-                            <div class="security-feature">🔒</div>
-                            <div class="card-info-overlay">
-                                <strong id="documentType">Documento de Identidad</strong><br>
-                                <span id="cardHolder">Usuario</span>
-                            </div>
-                        </div>
-                        <div class="card-face card-back realistic-document">
-                            <img id="finalBackImg" alt="Cara posterior del documento">
-                            <div class="security-feature">✓</div>
-                            <div class="card-info-overlay">
-                                <strong>Documento Verificado</strong><br>
-                                <span id="cardDate"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-controls">
-                    <button class="btn btn-secondary" id="flipCardBtn">🔄 Voltear Tarjeta</button>
-                    <button class="btn btn-success" id="resetCardBtn">📍 Posición Inicial</button>
-                </div>
-
-                <div class="card" style="margin-top: 2rem;">
-                    <h3>ℹ️ Información del Documento</h3>
-                    <div class="card-info">
-                        <div><strong>Titular:</strong> <span id="infoHolder">Usuario</span></div>
-                        <div><strong>ID Documento:</strong> <span id="infoId"></span></div>
-                        <div><strong>Fecha de Creación:</strong> <span id="infoDate"></span></div>
-                        <div><strong>Estado:</strong> <span style="color: #10b981;">✓ Verificado</span></div>
-                    </div>
-                    
-                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(79, 70, 229, 0.1); border-radius: 12px;">
-                        <h4>💡 Controles de la Tarjeta:</h4>
-                        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-                            <li><strong>Doble Click:</strong> Voltear tarjeta</li>
-                            <li><strong>Arrastrar:</strong> Rotar en 3D</li>
-                            <li><strong>Botón Voltear:</strong> Cambiar cara</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <script>
-        // Variables globales
-        let currentUser = null;
-        let videoStream = null;
-        let frontImage = null;
-        let backImage = null;
-        let scanStep = 1;
-        let documents = [];
-        let isProcessing = false;
-        let currentCapturedImage = null;
+      // ===== CONFIGURACIÓN Y CONSTANTES =====
+      const LOGIN_KEY = "vuelve_session_authenticated";
+      const CREDENTIALS = { username: "admin", password: "321123" };
 
-        // Variables para tarjeta 3D
-        let isDragging = false;
-        let startX = 0;
-        let startY = 0;
-        let currentRotationX = 0;
-        let currentRotationY = 0;
-        let isFlipped = false;
+      // ===== ELEMENTOS DEL DOM =====
+      const loginScreen = document.getElementById("loginScreen");
+      const mainScreen = document.getElementById("mainScreen");
+      const loginForm = document.getElementById("loginForm");
+      const errorMessage = document.getElementById("errorMessage");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutLink = document.getElementById("logoutLink");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const installInfo = document.getElementById("installInfo");
+      const currentYear = document.getElementById("currentYear");
+      const versionTag = document.getElementById("versionTag");
 
-        // Variables para recorte
-        let cropArea = { x: 0, y: 0, width: 0, height: 0 };
-        let isDraggingCrop = false;
-        let isResizing = false;
-        let resizeHandle = null;
-        let cropStartX = 0;
-        let cropStartY = 0;
+      // ===== FUNCIONES PRINCIPALES =====
 
-        // Elementos del DOM
-        const screens = {
-            login: document.getElementById('loginScreen'),
-            register: document.getElementById('registerScreen'),
-            dashboard: document.getElementById('dashboardScreen'),
-            scanner: document.getElementById('scannerScreen'),
-            card: document.getElementById('cardScreen')
-        };
+      // Mostrar pantalla principal
+      function showMainScreen() {
+        loginScreen.classList.add("hidden");
+        mainScreen.classList.add("show");
+        updateInstallInfo();
+      }
 
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDocuments();
-            initializeEventListeners();
-            checkSession();
-            optimizeForDevice();
-            setupViewportMeta();
+      // Mostrar pantalla de login
+      function showLoginScreen() {
+        mainScreen.classList.remove("show");
+        loginScreen.classList.remove("hidden");
+        clearForm();
+      }
+
+      // Limpiar formulario
+      function clearForm() {
+        usernameInput.value = "";
+        passwordInput.value = "";
+        hideError();
+      }
+
+      // Mostrar error
+      function showError(message = "Usuario o contraseña incorrectos") {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+
+        // Auto-ocultar después de 3 segundos
+        setTimeout(hideError, 3000);
+      }
+
+      // Ocultar error
+      function hideError() {
+        errorMessage.classList.remove("show");
+      }
+
+      // Validar credenciales
+      function validateCredentials(username, password) {
+        return (
+          username === CREDENTIALS.username && password === CREDENTIALS.password
+        );
+      }
+
+      // Actualizar información de instalación según la plataforma
+      function updateInstallInfo() {
+        const userAgent = navigator.userAgent.toLowerCase();
+
+        if (/iphone|ipad|ipod|mac/.test(userAgent)) {
+          installInfo.innerHTML = `
+          <strong>⚠️ Dispositivo no compatible</strong><br>
+          Esta app solo está disponible para Android. 
+          Abre esta página desde un dispositivo Android para descargar.
+        `;
+          downloadBtn.style.background = "#ccc";
+          downloadBtn.style.cursor = "not-allowed";
+          downloadBtn.onclick = (e) => {
+            e.preventDefault();
+            alert("Esta aplicación solo está disponible para Android");
+          };
+        } else if (/android/.test(userAgent)) {
+          installInfo.innerHTML = `
+          <strong>📱 Perfecto, estás en Android!</strong><br>
+          1. Descarga el archivo APK<br>
+          2. Abre el archivo descargado<br>
+          3. Permite instalación desde fuentes desconocidas<br>
+          4. Confirma la instalación
+        `;
+        }
+      }
+
+      // Verificar si el APK existe
+      async function checkAPKExists() {
+        try {
+          const response = await fetch("./app-release.apk", { method: "HEAD" });
+          if (!response.ok) throw new Error("APK not found");
+        } catch (error) {
+          downloadBtn.innerHTML = "⚠️ APK no encontrado";
+          downloadBtn.style.background = "#f57c00";
+          downloadBtn.onclick = (e) => {
+            e.preventDefault();
+            alert(
+              "El archivo app-release.apk no se encuentra en el servidor. Contacta al administrador."
+            );
+          };
+
+          installInfo.innerHTML = `
+          <strong>⚠️ Archivo no encontrado</strong><br>
+          El archivo <code>app-release.apk</code> debe estar en la misma carpeta que este sitio web.
+        `;
+        }
+      }
+
+      // ===== EVENT LISTENERS =====
+
+      // Login form submit
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+          showError("Por favor, completa todos los campos");
+          return;
+        }
+
+        if (validateCredentials(username, password)) {
+          localStorage.setItem(LOGIN_KEY, "true");
+          showMainScreen();
+        } else {
+          showError();
+          // Limpiar solo el campo de contraseña por seguridad
+          passwordInput.value = "";
+          passwordInput.focus();
+        }
+      });
+
+      // Enter key en inputs
+      [usernameInput, passwordInput].forEach((input) => {
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            loginForm.dispatchEvent(new Event("submit"));
+          }
+        });
+      });
+
+      // Logout
+      logoutLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem(LOGIN_KEY);
+        showLoginScreen();
+      });
+
+      // Ocultar error al escribir
+      [usernameInput, passwordInput].forEach((input) => {
+        input.addEventListener("input", hideError);
+      });
+
+      // ===== INICIALIZACIÓN =====
+
+      // Establecer año actual
+      currentYear.textContent = new Date().getFullYear();
+
+      // Verificar si ya está autenticado
+      if (localStorage.getItem(LOGIN_KEY) === "true") {
+        showMainScreen();
+        checkAPKExists();
+      } else {
+        showLoginScreen();
+        // Focus en el input de usuario
+        setTimeout(() => usernameInput.focus(), 100);
+      }
+
+      // Verificar APK al cargar
+      if (mainScreen.classList.contains("show")) {
+        checkAPKExists();
+      }
+
+      // ===== MEJORAS DE UX =====
+
+      // Prevenir zoom en iOS al enfocar inputs
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const inputs = document.querySelectorAll("input");
+        inputs.forEach((input) => {
+          input.addEventListener("focus", () => {
+            input.style.fontSize = "16px";
+          });
+        });
+      }
+
+      // Feedback visual en botones
+      [loginBtn, downloadBtn].forEach((btn) => {
+        btn.addEventListener("touchstart", () => {
+          btn.style.transform = "scale(0.98)";
         });
 
-        // Optimización para diferentes dispositivos
-        function optimizeForDevice() {
-            const isMobile = window.innerWidth <= 768;
-            const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
-            const isTouch = 'ontouchstart' in window;
-            
-            // Ajustar configuraciones según dispositivo
-            if (isMobile) {
-                // Optimizaciones para móviles
-                document.body.style.overflow = 'auto';
-                optimizeCameraForMobile();
-                adjustUIForMobile();
-            }
-            
-            if (isTouch) {
-                // Mejorar controles táctiles
-                enhanceTouchControls();
-            }
-            
-            // Escuchar cambios de orientación
-            window.addEventListener('orientationchange', handleOrientationChange);
-            window.addEventListener('resize', debounce(handleResize, 250));
-        }
-
-        function setupViewportMeta() {
-            let viewport = document.querySelector('meta[name="viewport"]');
-            if (!viewport) {
-                viewport = document.createElement('meta');
-                viewport.name = 'viewport';
-                document.head.appendChild(viewport);
-            }
-            viewport.content = 'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover';
-        }
-
-        function optimizeCameraForMobile() {
-            // Ajustar configuración de cámara para móviles
-            if (window.innerWidth <= 480) {
-                window.cameraConfig = {
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 720, max: 1280 },
-                        height: { ideal: 480, max: 720 }
-                    }
-                };
-            } else {
-                window.cameraConfig = {
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                };
-            }
-        }
-
-        function adjustUIForMobile() {
-            const isMobile = window.innerWidth <= 768;
-            
-            if (isMobile) {
-                // Hacer botones más grandes en móviles pequeños
-                if (window.innerWidth <= 480) {
-                    document.documentElement.style.setProperty('--btn-mobile-height', '48px');
-                }
-            }
-        }
-
-        function enhanceTouchControls() {
-            // Prevenir zoom accidental
-            document.addEventListener('touchmove', function(e) {
-                if (e.scale !== 1) { e.preventDefault(); }
-            }, { passive: false });
-            
-            // Mejorar feedback táctil
-            document.addEventListener('touchstart', function(e) {
-                if (e.target.closest('.btn')) {
-                    e.target.closest('.btn').style.transform = 'scale(0.98)';
-                }
-            });
-            
-            document.addEventListener('touchend', function(e) {
-                if (e.target.closest('.btn')) {
-                    setTimeout(() => {
-                        const btn = e.target.closest('.btn');
-                        if (btn) btn.style.transform = '';
-                    }, 150);
-                }
-            });
-        }
-
-        function handleOrientationChange() {
-            setTimeout(() => {
-                // Recalcular dimensiones después del cambio de orientación
-                if (videoStream) {
-                    adjustCameraPreview();
-                }
-                
-                // Reajustar tarjeta 3D
-                if (screens.card.classList.contains('active')) {
-                    resetCard();
-                }
-                
-                // Reposicionar alertas
-                repositionAlerts();
-            }, 100);
-        }
-
-        function handleResize() {
-            optimizeForDevice();
-            
-            if (videoStream) {
-                adjustCameraPreview();
-            }
-        }
-
-        function adjustCameraPreview() {
-            const video = document.getElementById('videoPreview');
-            const preview = document.querySelector('.camera-preview');
-            
-            if (video && preview) {
-                const containerWidth = preview.clientWidth;
-                const containerHeight = preview.clientHeight;
-                
-                // Ajustar video a contenedor manteniendo aspect ratio
-                const videoAspect = video.videoWidth / video.videoHeight;
-                const containerAspect = containerWidth / containerHeight;
-                
-                if (videoAspect > containerAspect) {
-                    video.style.width = '100%';
-                    video.style.height = 'auto';
-                } else {
-                    video.style.width = 'auto';
-                    video.style.height = '100%';
-                }
-            }
-        }
-
-        function repositionAlerts() {
-            const alerts = document.querySelectorAll('.alert');
-            const isMobile = window.innerWidth <= 480;
-            
-            alerts.forEach(alert => {
-                if (isMobile) {
-                    alert.style.position = 'fixed';
-                    alert.style.top = '10px';
-                    alert.style.left = '10px';
-                    alert.style.right = '10px';
-                    alert.style.width = 'auto';
-                } else {
-                    alert.style.position = 'fixed';
-                    alert.style.top = '20px';
-                    alert.style.right = '20px';
-                    alert.style.left = 'auto';
-                    alert.style.width = '300px';
-                }
-            });
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Event Listeners
-        function initializeEventListeners() {
-            // Autenticación
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerForm').addEventListener('submit', handleRegister);
-            document.getElementById('showRegister').addEventListener('click', () => showScreen('register'));
-            document.getElementById('showLogin').addEventListener('click', () => showScreen('login'));
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-
-            // Escáner
-            document.getElementById('startScanBtn').addEventListener('click', startScanning);
-            document.getElementById('cancelScanBtn').addEventListener('click', cancelScanning);
-            document.getElementById('captureBtn').addEventListener('click', captureImage);
-            document.getElementById('retakeBtn').addEventListener('click', retakeImage);
-            document.getElementById('generateCardBtn').addEventListener('click', generateVirtualCard);
-
-            // Recorte
-            document.getElementById('confirmCropBtn').addEventListener('click', confirmCrop);
-            document.getElementById('resetCropBtn').addEventListener('click', resetCrop);
-            document.getElementById('skipCropBtn').addEventListener('click', skipCrop);
-
-            // Tarjeta Virtual 3D
-            document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
-            document.getElementById('backToDashboardBtn').addEventListener('click', () => showScreen('dashboard'));
-            document.getElementById('flipCardBtn').addEventListener('click', flipCard);
-            document.getElementById('resetCardBtn').addEventListener('click', resetCard);
-
-            // Controles táctiles para tarjeta 3D
-            initializeCard3DControls();
-            
-            // Controles de recorte
-            initializeCropControls();
-        }
-
-        function initializeCard3DControls() {
-            const card3D = document.getElementById('documentCard3D');
-            const cardInner = document.getElementById('card3DInner');
-
-            // Doble click para voltear
-            card3D.addEventListener('dblclick', flipCard);
-
-            // Mouse events
-            card3D.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', endDrag);
-
-            // Touch events
-            card3D.addEventListener('touchstart', handleTouchStart, { passive: false });
-            document.addEventListener('touchmove', handleTouchMove, { passive: false });
-            document.addEventListener('touchend', endDrag);
-
-            function startDrag(e) {
-                isDragging = true;
-                startX = e.clientX || e.touches[0].clientX;
-                startY = e.clientY || e.touches[0].clientY;
-                card3D.style.cursor = 'grabbing';
-            }
-
-            function handleTouchStart(e) {
-                e.preventDefault();
-                startDrag(e);
-            }
-
-            function drag(e) {
-                if (!isDragging) return;
-                
-                const currentX = e.clientX || (e.touches && e.touches[0].clientX);
-                const currentY = e.clientY || (e.touches && e.touches[0].clientY);
-                
-                if (currentX === undefined || currentY === undefined) return;
-
-                const deltaX = currentX - startX;
-                const deltaY = currentY - startY;
-
-                currentRotationY += deltaX * 0.5;
-                currentRotationX -= deltaY * 0.5;
-
-                // Limitar rotación
-                currentRotationX = Math.max(-45, Math.min(45, currentRotationX));
-
-                updateCardRotation();
-
-                startX = currentX;
-                startY = currentY;
-            }
-
-            function handleTouchMove(e) {
-                e.preventDefault();
-                drag(e);
-            }
-
-            function endDrag() {
-                isDragging = false;
-                card3D.style.cursor = 'grab';
-            }
-        }
-
-        function initializeCropControls() {
-            const cropOverlay = document.getElementById('cropOverlay');
-            const cropAreaEl = document.getElementById('cropArea');
-            
-            // Event listeners para arrastrar el área de recorte
-            cropAreaEl.addEventListener('mousedown', startDragCrop);
-            cropAreaEl.addEventListener('touchstart', startDragCrop, { passive: false });
-            
-            // Event listeners para redimensionar
-            const handles = cropAreaEl.querySelectorAll('.crop-handle');
-            handles.forEach(handle => {
-                handle.addEventListener('mousedown', (e) => startResize(e, handle.className.split(' ')[1]));
-                handle.addEventListener('touchstart', (e) => startResize(e, handle.className.split(' ')[1]), { passive: false });
-            });
-            
-            // Event listeners globales
-            document.addEventListener('mousemove', handleCropMove);
-            document.addEventListener('touchmove', handleCropMove, { passive: false });
-            document.addEventListener('mouseup', endCropAction);
-            document.addEventListener('touchend', endCropAction);
-            
-            // Crear área inicial cuando se muestra la imagen
-            cropOverlay.addEventListener('click', createInitialCropArea);
-        }
-
-        function createInitialCropArea() {
-            const img = document.getElementById('cropImage');
-            const rect = img.getBoundingClientRect();
-            
-            // Crear área inicial de 80% del centro de la imagen
-            const margin = 0.1;
-            cropArea = {
-                x: rect.width * margin,
-                y: rect.height * margin,
-                width: rect.width * (1 - margin * 2),
-                height: rect.height * (1 - margin * 2)
-            };
-            
-            updateCropAreaDisplay();
-        }
-
-        function startDragCrop(e) {
-            e.preventDefault();
-            isDraggingCrop = true;
-            const rect = document.getElementById('cropImage').getBoundingClientRect();
-            cropStartX = (e.clientX || e.touches[0].clientX) - rect.left - cropArea.x;
-            cropStartY = (e.clientY || e.touches[0].clientY) - rect.top - cropArea.y;
-        }
-
-        function startResize(e, handle) {
-            e.preventDefault();
-            e.stopPropagation();
-            isResizing = true;
-            resizeHandle = handle;
-            const rect = document.getElementById('cropImage').getBoundingClientRect();
-            cropStartX = (e.clientX || e.touches[0].clientX) - rect.left;
-            cropStartY = (e.clientY || e.touches[0].clientY) - rect.top;
-        }
-
-        function handleCropMove(e) {
-            if (!isDraggingCrop && !isResizing) return;
-            
-            e.preventDefault();
-            const rect = document.getElementById('cropImage').getBoundingClientRect();
-            const currentX = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-            const currentY = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-            
-            if (isDraggingCrop) {
-                // Mover área de recorte
-                cropArea.x = Math.max(0, Math.min(currentX - cropStartX, rect.width - cropArea.width));
-                cropArea.y = Math.max(0, Math.min(currentY - cropStartY, rect.height - cropArea.height));
-            } else if (isResizing) {
-                // Redimensionar área de recorte
-                const deltaX = currentX - cropStartX;
-                const deltaY = currentY - cropStartY;
-                
-                switch (resizeHandle) {
-                    case 'nw':
-                        cropArea.width = Math.max(50, cropArea.width - deltaX);
-                        cropArea.height = Math.max(50, cropArea.height - deltaY);
-                        cropArea.x = Math.max(0, cropArea.x + deltaX);
-                        cropArea.y = Math.max(0, cropArea.y + deltaY);
-                        break;
-                    case 'ne':
-                        cropArea.width = Math.max(50, deltaX - cropArea.x);
-                        cropArea.height = Math.max(50, cropArea.height - deltaY);
-                        cropArea.y = Math.max(0, cropArea.y + deltaY);
-                        break;
-                    case 'sw':
-                        cropArea.width = Math.max(50, cropArea.width - deltaX);
-                        cropArea.height = Math.max(50, deltaY - cropArea.y);
-                        cropArea.x = Math.max(0, cropArea.x + deltaX);
-                        break;
-                    case 'se':
-                        cropArea.width = Math.max(50, deltaX - cropArea.x);
-                        cropArea.height = Math.max(50, deltaY - cropArea.y);
-                        break;
-                }
-                
-                // Limitar a los bordes de la imagen
-                cropArea.width = Math.min(cropArea.width, rect.width - cropArea.x);
-                cropArea.height = Math.min(cropArea.height, rect.height - cropArea.y);
-                
-                cropStartX = currentX;
-                cropStartY = currentY;
-            }
-            
-            updateCropAreaDisplay();
-        }
-
-        function endCropAction() {
-            isDraggingCrop = false;
-            isResizing = false;
-            resizeHandle = null;
-        }
-
-        function updateCropAreaDisplay() {
-            const cropAreaEl = document.getElementById('cropArea');
-            cropAreaEl.style.left = cropArea.x + 'px';
-            cropAreaEl.style.top = cropArea.y + 'px';
-            cropAreaEl.style.width = cropArea.width + 'px';
-            cropAreaEl.style.height = cropArea.height + 'px';
-        }
-
-        function resetCrop() {
-            createInitialCropArea();
-        }
-
-        function skipCrop() {
-            // Usar imagen completa
-            if (scanStep === 1) {
-                frontImage = currentCapturedImage;
-                scanStep = 2;
-                updateScanStep();
-                showAlert('✅ Cara frontal guardada (imagen completa)', 'success');
-            } else if (scanStep === 2) {
-                backImage = currentCapturedImage;
-                scanStep = 3;
-                updateScanStep();
-                showAlert('✅ Cara posterior guardada (imagen completa)', 'success');
-            }
-            
-            document.getElementById('cropContainer').style.display = 'none';
-        }
-
-        function confirmCrop() {
-            if (!currentCapturedImage) return;
-            
-            const img = document.getElementById('cropImage');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Calcular proporciones reales de la imagen
-            const imgElement = new Image();
-            imgElement.onload = () => {
-                const scaleX = imgElement.naturalWidth / img.clientWidth;
-                const scaleY = imgElement.naturalHeight / img.clientHeight;
-                
-                // Configurar canvas con el tamaño del recorte
-                canvas.width = cropArea.width * scaleX;
-                canvas.height = cropArea.height * scaleY;
-                
-                // Dibujar la parte recortada
-                ctx.drawImage(
-                    imgElement,
-                    cropArea.x * scaleX, cropArea.y * scaleY,
-                    cropArea.width * scaleX, cropArea.height * scaleY,
-                    0, 0,
-                    canvas.width, canvas.height
-                );
-                
-                const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-                
-                if (scanStep === 1) {
-                    frontImage = croppedImage;
-                    scanStep = 2;
-                    updateScanStep();
-                    showAlert('✅ Cara frontal recortada y guardada', 'success');
-                } else if (scanStep === 2) {
-                    backImage = croppedImage;
-                    scanStep = 3;
-                    updateScanStep();
-                    showAlert('✅ Cara posterior recortada y guardada', 'success');
-                }
-                
-                document.getElementById('cropContainer').style.display = 'none';
-            };
-            imgElement.src = currentCapturedImage;
-        }
-
-        function updateCardRotation() {
-            const cardInner = document.getElementById('card3DInner');
-            const flipRotation = isFlipped ? 180 : 0;
-            cardInner.style.transform = `rotateX(${currentRotationX}deg) rotateY(${currentRotationY + flipRotation}deg)`;
-        }
-
-        function flipCard() {
-            isFlipped = !isFlipped;
-            updateCardRotation();
-        }
-
-        function resetCard() {
-            currentRotationX = 0;
-            currentRotationY = 0;
-            isFlipped = false;
-            updateCardRotation();
-        }
-
-        // Gestión de pantallas
-        function showScreen(screenName) {
-            Object.values(screens).forEach(screen => screen.classList.remove('active'));
-            screens[screenName].classList.add('active');
-        }
-
-        // Autenticación
-        function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            showLoading(true);
-
-            setTimeout(() => {
-                const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
-                
-                if (users[username] && users[username].password === password) {
-                    currentUser = username;
-                    sessionStorage.setItem('currentUser', username);
-                    showScreen('dashboard');
-                    updateDashboard();
-                    showAlert('¡Bienvenido de vuelta!', 'success');
-                } else {
-                    showAlert('Usuario o contraseña incorrectos', 'error');
-                }
-                
-                showLoading(false);
-            }, 1500);
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const username = document.getElementById('newUsername').value;
-            const password = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (password !== confirmPassword) {
-                showAlert('Las contraseñas no coinciden', 'error');
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
-            
-            if (users[username]) {
-                showAlert('El usuario ya existe', 'error');
-                return;
-            }
-
-            users[username] = { password, documents: [] };
-            localStorage.setItem('billetera_users', JSON.stringify(users));
-            
-            showAlert('¡Cuenta creada exitosamente!', 'success');
-            document.getElementById('registerForm').reset();
-            showScreen('login');
-        }
-
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            showScreen('login');
-            showAlert('Sesión cerrada', 'success');
-        }
-
-        function checkSession() {
-            const sessionUser = sessionStorage.getItem('currentUser');
-            if (sessionUser) {
-                currentUser = sessionUser;
-                showScreen('dashboard');
-                updateDashboard();
-            }
-        }
-
-        function showLoading(show) {
-            const text = document.getElementById('loginText');
-            const loading = document.getElementById('loginLoading');
-            
-            if (show) {
-                text.style.display = 'none';
-                loading.style.display = 'inline-block';
-            } else {
-                text.style.display = 'inline';
-                loading.style.display = 'none';
-            }
-        }
-
-        // Dashboard
-        function updateDashboard() {
-            const avatar = document.getElementById('userAvatar');
-            const welcome = document.getElementById('welcomeUser');
-            
-            avatar.textContent = currentUser.charAt(0).toUpperCase();
-            welcome.textContent = `Bienvenido, ${currentUser}`;
-            
-            loadUserDocuments();
-        }
-
-        function loadUserDocuments() {
-            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
-            const userDocs = users[currentUser]?.documents || [];
-            
-            document.getElementById('docCount').textContent = userDocs.length;
-            
-            const container = document.getElementById('documentsContainer');
-            container.innerHTML = '';
-            
-            if (userDocs.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); margin-top: 1rem;">No hay documentos escaneados</p>';
-                return;
-            }
-
-            userDocs.forEach((doc, index) => {
-                const docCard = document.createElement('div');
-                docCard.className = 'document-preview';
-                docCard.innerHTML = `
-                    <img src="${doc.frontImage}" alt="Documento ${index + 1}">
-                `;
-                docCard.onclick = () => viewDocument(index);
-                
-                const docInfo = document.createElement('div');
-                docInfo.innerHTML = `
-                    <h4>📄 Documento ${index + 1}</h4>
-                    <p>📅 ${doc.date}</p>
-                    <small style="color: var(--text-secondary);">Click para ver en 3D</small>
-                `;
-                
-                container.appendChild(docCard);
-                container.appendChild(docInfo);
-            });
-        }
-
-        function viewDocument(index) {
-            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
-            const doc = users[currentUser].documents[index];
-            
-            if (doc) {
-                frontImage = doc.frontImage;
-                backImage = doc.backImage;
-                showVirtualCard();
-            }
-        }
-
-        // Escáner simplificado
-        async function startScanning() {
-            try {
-                // Usar configuración optimizada según dispositivo
-                const config = window.cameraConfig || {
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                };
-                
-                const stream = await navigator.mediaDevices.getUserMedia(config);
-                
-                videoStream = stream;
-                const video = document.getElementById('videoPreview');
-                video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
-                    adjustCameraPreview();
-                };
-                
-                scanStep = 1;
-                frontImage = null;
-                backImage = null;
-                isFlipped = false;
-                updateScanStep();
-                showScreen('scanner');
-                
-                // Mensaje para móviles
-                const isMobile = window.innerWidth <= 768;
-                if (isMobile) {
-                    showAlert('📱 Toma la foto y luego recorta el documento', 'success');
-                }
-                
-            } catch (error) {
-                showAlert('Error al acceder a la cámara: ' + error.message, 'error');
-                if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                        showAlert('💡 Asegúrate de dar permisos de cámara', 'success');
-                    }, 3000);
-                }
-            }
-        }
-
-        function cancelScanning() {
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-            showScreen('dashboard');
-        }
-
-        function updateScanStep() {
-            const stepElement = document.getElementById('scanStep');
-            const previewContainer = document.getElementById('previewContainer');
-            const retakeBtn = document.getElementById('retakeBtn');
-            const cropContainer = document.getElementById('cropContainer');
-            
-            // Ocultar contenedor de recorte
-            cropContainer.style.display = 'none';
-            
-            if (scanStep === 1) {
-                stepElement.innerHTML = `
-                    <h3>📱 Paso 1: Capturar cara frontal</h3>
-                    <p>Toma una foto de la cara frontal de tu documento. Luego podrás recortar la parte exacta que necesites.</p>
-                `;
-                previewContainer.style.display = 'none';
-                retakeBtn.style.display = 'none';
-            } else if (scanStep === 2) {
-                stepElement.innerHTML = `
-                    <h3>🔄 Paso 2: Capturar cara posterior</h3>
-                    <p>Voltea el documento y toma una foto de la cara posterior.</p>
-                `;
-                retakeBtn.style.display = 'inline-block';
-            } else if (scanStep === 3) {
-                stepElement.innerHTML = `
-                    <h3>✅ ¡Escaneado completo!</h3>
-                    <p>Ambas caras han sido capturadas y recortadas. Genera tu tarjeta virtual 3D.</p>
-                `;
-                previewContainer.style.display = 'block';
-                document.getElementById('frontPreview').src = frontImage;
-                document.getElementById('backPreview').src = backImage;
-            }
-        }
-
-        function captureImage() {
-            if (isProcessing) return;
-            isProcessing = true;
-
-            const video = document.getElementById('videoPreview');
-            const canvas = document.getElementById('captureCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            ctx.drawImage(video, 0, 0);
-            currentCapturedImage = canvas.toDataURL('image/jpeg', 0.9);
-            
-            // Mostrar la imagen para recortar
-            document.getElementById('cropImage').src = currentCapturedImage;
-            document.getElementById('cropContainer').style.display = 'block';
-            
-            // Crear área inicial de recorte
-            setTimeout(() => {
-                createInitialCropArea();
-            }, 100);
-            
-            const stepText = scanStep === 1 ? 'frontal' : 'posterior';
-            showAlert(`📸 Foto ${stepText} capturada. Selecciona el área del documento.`, 'success');
-
-            isProcessing = false;
-        }
-
-        function retakeImage() {
-            if (scanStep === 2) {
-                frontImage = null;
-                scanStep = 1;
-            } else if (scanStep === 3) {
-                backImage = null;
-                scanStep = 2;
-            }
-            document.getElementById('cropContainer').style.display = 'none';
-            updateScanStep();
-        }
-
-        function generateVirtualCard() {
-            if (!frontImage || !backImage) {
-                showAlert('Faltan imágenes del documento', 'error');
-                return;
-            }
-
-            // Guardar documento
-            const users = JSON.parse(localStorage.getItem('billetera_users') || '{}');
-            if (!users[currentUser].documents) {
-                users[currentUser].documents = [];
-            }
-            
-            const newDoc = {
-                frontImage,
-                backImage,
-                date: new Date().toLocaleDateString(),
-                id: Date.now()
-            };
-            
-            users[currentUser].documents.push(newDoc);
-            localStorage.setItem('billetera_users', JSON.stringify(users));
-            
-            // Limpiar stream
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-            
-            showVirtualCard();
-        }
-
-        function showVirtualCard() {
-            // Actualizar información de la tarjeta
-            const cardId = '#' + Date.now().toString().slice(-6);
-            const currentDate = new Date().toLocaleDateString();
-            
-            document.getElementById('cardHolder').textContent = currentUser;
-            document.getElementById('infoHolder').textContent = currentUser;
-            document.getElementById('cardDate').textContent = currentDate;
-            document.getElementById('infoDate').textContent = currentDate;
-            document.getElementById('infoId').textContent = cardId;
-            
-            // Mostrar imágenes en tarjeta 3D
-            document.getElementById('finalFrontImg').src = frontImage;
-            document.getElementById('finalBackImg').src = backImage;
-            
-            // Resetear posición de la tarjeta
-            resetCard();
-            
-            showScreen('card');
-            showAlert('✨ ¡Tarjeta virtual 3D generada exitosamente!', 'success');
-        }
-
-        // PDF Generation mejorado
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape', 'mm', 'a4');
-            
-            // Configuración
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const margin = 20;
-            const cardWidth = (pageWidth - margin * 3) / 2;
-            const cardHeight = cardWidth * 0.63; // Proporción de tarjeta
-            
-            // Header
-            doc.setFillColor(79, 70, 229);
-            doc.rect(0, 0, pageWidth, 30, 'F');
-            
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
-            doc.setFont('helvetica', 'bold');
-            doc.text('TU BILLETERA - DOCUMENTO DIGITAL', pageWidth / 2, 20, { align: 'center' });
-            
-            // Información del documento
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'normal');
-            
-            const infoY = 45;
-            doc.text(`Titular: ${currentUser}`, margin, infoY);
-            doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, margin, infoY + 8);
-            doc.text(`ID del documento: #${Date.now().toString().slice(-6)}`, margin, infoY + 16);
-            doc.text(`Estado: Verificado ✓`, margin, infoY + 24);
-            
-            // Línea separadora
-            doc.setDrawColor(79, 70, 229);
-            doc.setLineWidth(0.5);
-            doc.line(margin, infoY + 35, pageWidth - margin, infoY + 35);
-            
-            // Títulos de las caras
-            const cardY = infoY + 50;
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text('CARA FRONTAL', margin + cardWidth / 2, cardY - 5, { align: 'center' });
-            doc.text('CARA POSTERIOR', margin * 2 + cardWidth + cardWidth / 2, cardY - 5, { align: 'center' });
-            
-            // Agregar imágenes
-            if (frontImage) {
-                try {
-                    doc.addImage(frontImage, 'JPEG', margin, cardY, cardWidth, cardHeight, undefined, 'FAST');
-                } catch (e) {
-                    console.error('Error adding front image:', e);
-                }
-            }
-            
-            if (backImage) {
-                try {
-                    doc.addImage(backImage, 'JPEG', margin * 2 + cardWidth, cardY, cardWidth, cardHeight, undefined, 'FAST');
-                } catch (e) {
-                    console.error('Error adding back image:', e);
-                }
-            }
-            
-            // Bordes decorativos para las tarjetas
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(1);
-            doc.rect(margin, cardY, cardWidth, cardHeight);
-            doc.rect(margin * 2 + cardWidth, cardY, cardWidth, cardHeight);
-            
-            // Footer
-            const footerY = pageHeight - 20;
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text('Documento generado por Tu Billetera - Sistema de documentos digitales seguros', pageWidth / 2, footerY, { align: 'center' });
-            doc.text(`Generado el: ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 5, { align: 'center' });
-            
-            // Descargar
-            const fileName = `documento-${currentUser}-${Date.now()}.pdf`;
-            doc.save(fileName);
-            showAlert('📄 PDF descargado exitosamente', 'success');
-        }
-
-        // Alertas mejoradas
-        function showAlert(message, type) {
-            // Remover alertas existentes
-            const existingAlerts = document.querySelectorAll('.alert');
-            existingAlerts.forEach(alert => alert.remove());
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerHTML = `
-                <strong>${type === 'success' ? '✅' : '❌'}</strong> ${message}
-                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: inherit; cursor: pointer; font-size: 1.2rem;">&times;</button>
-            `;
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                if (alertDiv.parentElement) {
-                    alertDiv.remove();
-                }
-            }, 4000);
-        }
-
-        // Utilidades
-        function loadDocuments() {
-            documents = JSON.parse(localStorage.getItem('billetera_documents') || '[]');
-        }
-
-        // Prevenir zoom en dispositivos móviles al hacer doble tap
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
+        btn.addEventListener("touchend", () => {
+          btn.style.transform = "";
         });
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(e) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
+      });
     </script>
-</body>
+  </body>
 </html>
